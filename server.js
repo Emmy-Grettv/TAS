@@ -5,6 +5,7 @@ const bodyParser = require('body-parser');
 const dotenv = require('dotenv');
 
 const destinationRoutes = require('./routes/destinationRoutes');
+const tourRoutes = require('./routes/tourRoutes');
 
 dotenv.config();
 
@@ -22,6 +23,7 @@ mongoose
 )
 
 app.use('/api/destinations', destinationRoutes);
+app.use('/api/tours', tourRoutes);
 
  const PORT = process.env.PORT || 3000;
 
