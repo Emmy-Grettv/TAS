@@ -6,6 +6,7 @@ const dotenv = require('dotenv');
 
 const destinationRoutes = require('./routes/destinationRoutes');
 const tourRoutes = require('./routes/tourRoutes');
+const bookingRoutes = require('./routes/bookingRoutes')
 
 dotenv.config();
 
@@ -23,7 +24,8 @@ mongoose
 )
 
 app.use('/api/destinations', destinationRoutes);
-app.use('/api/tours', tourRoutes);
+app.use('/api/tours', tourRoutes)
+app.use('/api/bookings', bookingRoutes)
 
  const PORT = process.env.PORT || 3000;
 
