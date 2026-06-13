@@ -1,0 +1,1 @@
+const { Client } = require('pg'); const c = new Client({user:'postgres', password:'123', database:'tegano_db', host:'localhost'}); c.connect().then(()=>c.query('SELECT status, \"errorMessage\" FROM message_logs ORDER BY \"sentAt\" DESC LIMIT 5').then(r=>{console.table(r.rows);c.end()}))

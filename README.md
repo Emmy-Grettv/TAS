@@ -1,2 +1,0 @@
-# TAS
-Touristic Wonders
