@@ -215,7 +215,7 @@ Tegano Recreation Center`;
         `Number of Students: ${booking.studentsCount} Kids`,
         `Number of Teachers/Chaperones: ${booking.teachersCount || 'N/S'}`,
         `Reservation Reference: TGN/${booking.id.slice(0, 5).toUpperCase()}/${new Date().getFullYear()}`,
-      ], 62, doc.y, { bulletRadius: 2, textIndent: 8, lineGap: 1 });
+      ], { bulletRadius: 2, textIndent: 8, lineGap: 1 });
 
       doc.moveDown(0.5);;
       
@@ -231,7 +231,7 @@ Tegano Recreation Center`;
         'Students should wear comfortable clothing suitable for play activities.',
         'For water activities, students should bring extra clothes and towels.',
         'Teachers and supervisors are requested to accompany and monitor their groups.'
-      ], 62, doc.y, { bulletRadius: 2, textIndent: 8 });
+      ], { bulletRadius: 2, textIndent: 8 });
       
       doc.moveDown(0.8);
       doc.text('We look forward to welcoming your students for an enjoyable and memorable day at Tegano Recreation Center.');
