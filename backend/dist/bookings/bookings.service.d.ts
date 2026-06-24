@@ -18,7 +18,7 @@ export declare class BookingsService {
         rejected: number;
     }>;
     findOne(id: string): Promise<Booking>;
-    create(dto: CreateBookingDto, userId: string): Promise<Booking>;
+    create(dto: CreateBookingDto, userId: string | null): Promise<Booking>;
     update(id: string, dto: UpdateBookingDto): Promise<Booking>;
     remove(id: string): Promise<{
         message: string;

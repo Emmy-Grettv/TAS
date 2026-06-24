@@ -1,0 +1,182 @@
+import Link from 'next/link';
+import Image from 'next/image';
+import { Shield, Heart, Star, Users, Eye, Zap, ArrowRight, CheckCircle } from 'lucide-react';
+
+const values = [
+  { icon: Shield, title: 'Safety', desc: 'Every activity is supervised with child safety as our top priority.' },
+  { icon: Heart, title: 'Care', desc: 'We treat every child with warmth in a nurturing environment.' },
+  { icon: Star, title: 'Excellence', desc: 'Committed to delivering world-class recreational experiences.' },
+  { icon: Users, title: 'Inclusion', desc: 'Activities designed for all children regardless of ability.' },
+  { icon: Eye, title: 'Transparency', desc: 'We communicate openly and keep parents fully informed.' },
+  { icon: Zap, title: 'Innovation', desc: 'Constantly updating activities to keep children engaged.' },
+];
+
+const team = [
+  { name: 'Emmerson Chitawa', role: 'Facility Supervisor', desc: 'Over 8 years managing children\'s recreation facilities across Zimbabwe.' },
+  { name: 'Tendai Moyo', role: 'Activities Coordinator', desc: 'Certified in child development and recreational therapy.' },
+  { name: 'Grace Dube', role: 'Safety Officer', desc: 'First aid certified and trained in emergency response.' },
+  { name: 'Tariro Ncube', role: 'Customer Relations', desc: 'Ensures every school and parent experience is seamless.' },
+];
+
+const milestones = [
+  { year: '2019', event: 'Tegano Founded', detail: 'Opened our doors at 26 Princess Drive, Newlands.' },
+  { year: '2020', event: '100 Schools Served', detail: 'Became the go-to school trip destination in Harare.' },
+  { year: '2022', event: 'Facility Expanded', detail: 'Added new rides, water slides and creative studios.' },
+  { year: '2024', event: '5-Star Rating', detail: 'Achieved the highest safety and quality rating.' },
+];
+
+const safetyFeatures = [
+  'First aid certified staff on every shift',
+  'CCTV monitoring across all activity zones',
+  'Padded and cushioned play areas',
+  'Age-appropriate activity segregation',
+  'Strict capacity limits per activity',
+  'Daily equipment safety inspections',
+  'Emergency evacuation procedures',
+  'Supervised entry and exit control',
+];
+
+export default function AboutPage() {
+  return (
+    <>
+      {/* ── Hero ── */}
+      <section className="bg-slate-900 pt-20 pb-16 text-white">
+        <div className="max-w-6xl mx-auto px-6 text-center">
+          <span className="text-xs font-semibold text-[#29A8C4] uppercase tracking-widest mb-3 block">About Us</span>
+          <h1 className="text-4xl lg:text-5xl font-bold text-white mb-4">Our Story &amp; Mission</h1>
+          <p className="text-slate-400 text-lg max-w-xl mx-auto leading-relaxed">
+            Born from a passion to create safe, joyful spaces for Zimbabwe&apos;s children — Tegano has become Harare&apos;s most trusted destination for school trips and family outings.
+          </p>
+        </div>
+      </section>
+
+      {/* ── Story ── */}
+      <section className="py-20 bg-white">
+        <div className="max-w-6xl mx-auto px-6 grid lg:grid-cols-2 gap-16 items-center">
+          <div>
+            <span className="text-xs font-semibold text-[#29A8C4] uppercase tracking-widest mb-3 block">Our Beginning</span>
+            <h2 className="text-3xl font-bold text-slate-900 mb-3">From a Dream to Zimbabwe&apos;s Premier Recreation Center</h2>
+            <div className="w-10 h-0.5 bg-[#29A8C4] rounded-full mb-6" />
+            <div className="space-y-4 text-slate-600 leading-relaxed text-sm">
+              <p>Tegano Recreation Center was founded with a single, powerful vision: to create a place where every child in Zimbabwe could experience the pure joy of play in a safe, professionally managed environment.</p>
+              <p>Located at 26 Princess Drive, Newlands, Harare, we have welcomed thousands of children from schools, families, and community groups across the country.</p>
+              <p>Today, we are proud to be the go-to destination for school trips in Harare — trusted by over 100 schools and celebrated by parents for our commitment to safety and fun.</p>
+            </div>
+          </div>
+          {/* Milestone grid */}
+          <div className="grid grid-cols-2 gap-4">
+            {milestones.map(({ year, event, detail }) => (
+              <div key={year} className="bg-slate-50 rounded-xl p-5 border border-slate-100">
+                <div className="text-2xl font-bold text-[#29A8C4] mb-1">{year}</div>
+                <div className="font-semibold text-slate-900 text-sm mb-1">{event}</div>
+                <div className="text-slate-500 text-xs leading-snug">{detail}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Mission & Vision ── */}
+      <section className="py-20 bg-slate-50">
+        <div className="max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-6">
+          <div className="bg-white rounded-xl p-8 border border-slate-100">
+            <div className="w-10 h-10 bg-[#29A8C4]/10 rounded-lg flex items-center justify-center mb-4">
+              <Star className="w-5 h-5 text-[#29A8C4]" />
+            </div>
+            <h3 className="text-xl font-bold text-slate-900 mb-3">Our Mission</h3>
+            <p className="text-slate-600 leading-relaxed text-sm">To provide Zimbabwe&apos;s children with world-class recreational experiences that foster physical development, creativity, social skills, and unforgettable memories — in the safest possible environment.</p>
+          </div>
+          <div className="bg-white rounded-xl p-8 border border-slate-100">
+            <div className="w-10 h-10 bg-[#29A8C4]/10 rounded-lg flex items-center justify-center mb-4">
+              <Eye className="w-5 h-5 text-[#29A8C4]" />
+            </div>
+            <h3 className="text-xl font-bold text-slate-900 mb-3">Our Vision</h3>
+            <p className="text-slate-600 leading-relaxed text-sm">To be the leading children&apos;s recreation center across Southern Africa, recognized for excellence in safety, innovation, and the transformative power of play for every child.</p>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Core Values ── */}
+      <section className="py-20 bg-white">
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="text-center mb-12">
+            <span className="text-xs font-semibold text-[#29A8C4] uppercase tracking-widest mb-3 block">What We Stand For</span>
+            <h2 className="text-3xl font-bold text-slate-900">Our Core Values</h2>
+          </div>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {values.map(({ icon: Icon, title, desc }) => (
+              <div key={title} className="bg-slate-50 rounded-xl p-6 border border-transparent hover:border-[#29A8C4]/20 hover:shadow-sm transition-all duration-200">
+                <div className="w-10 h-10 bg-[#29A8C4]/10 rounded-lg flex items-center justify-center mb-4">
+                  <Icon className="w-5 h-5 text-[#29A8C4]" />
+                </div>
+                <h4 className="font-semibold text-slate-900 mb-1">{title}</h4>
+                <p className="text-slate-500 text-sm leading-relaxed">{desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Safety ── */}
+      <section className="py-20 bg-slate-50">
+        <div className="max-w-6xl mx-auto px-6 grid lg:grid-cols-2 gap-16 items-center">
+          <div>
+            <span className="text-xs font-semibold text-[#29A8C4] uppercase tracking-widest mb-3 block">Our Commitment</span>
+            <h2 className="text-3xl font-bold text-slate-900 mb-3">Safety is Our Number One Priority</h2>
+            <div className="w-10 h-0.5 bg-[#29A8C4] rounded-full mb-6" />
+            <div className="grid grid-cols-2 gap-3">
+              {safetyFeatures.map(f => (
+                <div key={f} className="flex items-start gap-2">
+                  <CheckCircle className="w-4 h-4 text-[#29A8C4] shrink-0 mt-0.5" />
+                  <span className="text-sm text-slate-600">{f}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="relative rounded-2xl overflow-hidden aspect-[4/3] bg-slate-200">
+            <Image
+              src="/images/recreation_center_1782114747136.png"
+              alt="Tegano Recreation Center safety"
+              fill
+              className="object-cover"
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* ── Team ── */}
+      <section className="py-20 bg-white">
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="text-center mb-12">
+            <span className="text-xs font-semibold text-[#29A8C4] uppercase tracking-widest mb-3 block">Our People</span>
+            <h2 className="text-3xl font-bold text-slate-900">Meet the Team</h2>
+          </div>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            {team.map(m => (
+              <div key={m.name} className="bg-slate-50 rounded-xl p-6 border border-slate-100 hover:shadow-md transition-all duration-200">
+                <div className="w-14 h-14 bg-[#29A8C4]/10 rounded-full flex items-center justify-center mb-4">
+                  <Users className="w-6 h-6 text-[#29A8C4]" />
+                </div>
+                <h4 className="font-semibold text-slate-900 mb-0.5">{m.name}</h4>
+                <p className="text-xs text-[#29A8C4] font-medium mb-3">{m.role}</p>
+                <p className="text-slate-500 text-xs leading-relaxed">{m.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── CTA ── */}
+      <section className="py-16 bg-slate-900">
+        <div className="max-w-3xl mx-auto px-6 text-center">
+          <h2 className="text-3xl font-bold text-white mb-3">Ready to Visit Us?</h2>
+          <p className="text-slate-400 mb-8">Book your school trip today and experience everything Tegano has to offer.</p>
+          <Link href="/book-now"
+            className="inline-flex items-center gap-2 px-7 py-3 bg-[#29A8C4] text-white font-semibold rounded-lg hover:bg-[#1e8fa8] transition-colors">
+            Book Now <ArrowRight className="w-4 h-4" />
+          </Link>
+        </div>
+      </section>
+    </>
+  );
+}

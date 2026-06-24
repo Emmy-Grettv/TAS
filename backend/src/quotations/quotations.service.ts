@@ -176,6 +176,14 @@ Tegano Recreation Center`;
       doc.pipe(stream);
 
       // --- Page 1: Letter ---
+      const logoPath = fs.existsSync(path.join(__dirname, '..', '..', 'assets', 'logo.png'))
+        ? path.join(__dirname, '..', '..', 'assets', 'logo.png')
+        : path.join(__dirname, '..', 'assets', 'logo.png');
+
+      if (fs.existsSync(logoPath)) {
+        doc.image(logoPath, 50, 45, { width: 120 });
+      }
+
       doc.font('Helvetica-Bold').fontSize(10).fillColor('#0066cc')
          .text('TEGANO INVESTMENT (PVT) LTD', 300, 50, { align: 'right', width: 240 })
          .font('Helvetica')
@@ -275,6 +283,11 @@ Tegano Recreation Center`;
       
       // --- Page 2: Annexure 1 ---
       doc.addPage();
+
+      if (fs.existsSync(logoPath)) {
+        doc.image(logoPath, 50, 45, { width: 120 });
+      }
+      
       doc.font('Helvetica-Bold').fontSize(10).fillColor('#0066cc')
          .text('TEGANO INVESTMENT (PVT) LTD', 300, 50, { align: 'right', width: 240 })
          .font('Helvetica')

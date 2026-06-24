@@ -123,7 +123,7 @@ let BookingsService = BookingsService_1 = class BookingsService {
     async create(dto, userId) {
         const booking = this.bookingsRepo.create({
             ...dto,
-            createdBy: { id: userId },
+            ...(userId ? { createdBy: { id: userId } } : {}),
         });
         return this.bookingsRepo.save(booking);
     }
@@ -196,6 +196,12 @@ Tegano Recreation Center`;
             const doc = new pdfkit_1.default({ margin: 50, size: 'A4' });
             const stream = fs.createWriteStream(filePath);
             doc.pipe(stream);
+            const logoPath = fs.existsSync(path.join(__dirname, '..', '..', 'assets', 'logo.png'))
+                ? path.join(__dirname, '..', '..', 'assets', 'logo.png')
+                : path.join(__dirname, '..', 'assets', 'logo.png');
+            if (fs.existsSync(logoPath)) {
+                doc.image(logoPath, 50, 45, { width: 120 });
+            }
             doc.font('Helvetica-Bold').fontSize(10).fillColor('#0066cc')
                 .text('TEGANO INVESTMENT (PVT) LTD', 300, 50, { align: 'right', width: 240 })
                 .font('Helvetica')
@@ -254,6 +260,9 @@ Tegano Recreation Center`;
             doc.font('Helvetica-Bold').fontSize(8.5).text('"Follow us: Facebook | Instagram | TikTok"', 50, pageHeight - 65, { align: 'center', width: 495 });
             doc.font('Helvetica').text('DIRECT ALL INQUIRES TO: +263 781499656 / 784700878', 50, pageHeight - 50, { align: 'center', width: 495 });
             doc.addPage();
+            if (fs.existsSync(logoPath)) {
+                doc.image(logoPath, 50, 45, { width: 120 });
+            }
             doc.font('Helvetica-Bold').fontSize(10).fillColor('#0066cc')
                 .text('TEGANO INVESTMENT (PVT) LTD', 300, 50, { align: 'right', width: 240 })
                 .font('Helvetica')

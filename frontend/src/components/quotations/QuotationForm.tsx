@@ -23,7 +23,7 @@ import { Loader2, Plus, Trash } from "lucide-react";
 const quotationItemSchema = z.object({
   description: z.string().min(1, "Description is required"),
   quantity: z.coerce.number().min(1, "Quantity must be at least 1"),
-  unitCost: z.coerce.number().min(0, "Unit cost must be positive"),
+  unitCost: z.coerce.number().refine(val => val === 10 || val === 12, "Unit cost must be either 10 or 12"),
 });
 
 const formSchema = z.object({
@@ -163,7 +163,7 @@ export function QuotationForm({ initialData }: QuotationFormProps) {
               type="button"
               variant="outline"
               size="sm"
-              onClick={() => append({ description: "", quantity: 1, unitCost: 0 })}
+              onClick={() => append({ description: "", quantity: 1, unitCost: 10 })}
             >
               <Plus className="mr-2 h-4 w-4" />
               Add Item
@@ -205,7 +205,14 @@ export function QuotationForm({ initialData }: QuotationFormProps) {
                   <FormItem className="w-32">
                     <FormLabel>Unit Cost ($)</FormLabel>
                     <FormControl>
-                      <Input type="number" min="0" step="0.01" {...field} />
+                      <select 
+                        className="flex h-10 w-full rounded-md border border-input bg-white px-3 py-1 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                        value={field.value}
+                        onChange={(e) => field.onChange(Number(e.target.value))}
+                      >
+                        <option value={10}>$10</option>
+                        <option value={12}>$12</option>
+                      </select>
                     </FormControl>
                     <FormMessage />
                   </FormItem>

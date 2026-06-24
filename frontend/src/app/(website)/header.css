@@ -1,0 +1,52 @@
+/* ─── Header ─── */
+.w-header {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+  padding: 18px 0; transition: all 0.3s ease;
+  background: rgba(255,255,255,0.85); backdrop-filter: blur(12px);
+  border-bottom: 1px solid transparent;
+}
+.w-header-scrolled {
+  padding: 16px 0; background: rgba(255,255,255,0.97);
+  border-bottom-color: var(--w-border);
+  box-shadow: 0 2px 20px rgba(41,168,196,0.12);
+}
+.w-header-inner { display: flex; align-items: center; gap: 32px; }
+
+/* Logo */
+.w-logo { display: flex; align-items: baseline; gap: 2px; text-decoration: none; flex-shrink: 0; }
+.w-logo-t { font-family: 'Poppins',sans-serif; font-size: 32px; font-weight: 900; color: var(--w-teal); line-height: 1; }
+.w-logo-egano { font-family: 'Poppins',sans-serif; font-size: 26px; font-weight: 800; color: var(--w-pink); }
+.w-logo-sub { font-size: 11px; font-weight: 600; color: var(--w-gray); letter-spacing: 0.5px; margin-left: 6px; align-self: flex-end; padding-bottom: 2px; }
+
+/* Nav */
+.w-nav { display: flex; align-items: center; gap: 4px; margin-left: auto; }
+.w-nav-link {
+  font-size: 14px; font-weight: 600; color: var(--w-dark); padding: 8px 14px;
+  border-radius: 8px; transition: all 0.2s ease;
+}
+.w-nav-link:hover { color: var(--w-teal); background: var(--w-teal-light); }
+.w-nav-link.active { color: var(--w-teal); background: var(--w-teal-light); }
+.w-nav-cta { margin-left: 8px; font-size: 14px !important; padding: 10px 20px !important; }
+
+/* Desktop book btn */
+.w-header-book-btn { margin-left: auto; font-size: 14px !important; padding: 10px 22px !important; display: none; }
+
+/* Burger */
+.w-burger { display: none; flex-direction: column; gap: 5px; background: none; border: none; cursor: pointer; padding: 4px; }
+.w-burger span { display: block; width: 24px; height: 2.5px; background: var(--w-dark); border-radius: 4px; transition: all 0.3s ease; }
+
+@media (max-width: 1024px) {
+  .w-nav { display: none; }
+  .w-header-book-btn { display: inline-flex; }
+  .w-burger { display: flex; }
+
+  .w-nav.w-nav-open {
+    display: flex; flex-direction: column; align-items: flex-start;
+    position: fixed; top: 70px; left: 0; right: 0; bottom: 0;
+    background: var(--w-white); padding: 24px; gap: 8px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.1); z-index: 999;
+    overflow-y: auto;
+  }
+  .w-nav.w-nav-open .w-nav-link { width: 100%; font-size: 17px; padding: 14px 16px; }
+  .w-nav.w-nav-open .w-nav-cta { margin-top: 16px; width: 100%; justify-content: center; }
+}

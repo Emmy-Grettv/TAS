@@ -19,6 +19,42 @@ import { toast } from "sonner";
 import { api } from "@/lib/api";
 import { Loader2 } from "lucide-react";
 
+function parseTimeToMinutes(timeStr: string | undefined): number | null {
+  if (!timeStr) return null;
+  const clean = timeStr.trim().toLowerCase();
+  
+  // Try to match HH:MM AM/PM or HH:MM
+  const match1 = clean.match(/^(\d{1,2}):(\d{2})\s*(am|pm)?$/);
+  if (match1) {
+    let hours = parseInt(match1[1], 10);
+    const minutes = parseInt(match1[2], 10);
+    const ampm = match1[3];
+    
+    if (hours < 0 || hours > 23 || minutes < 0 || minutes > 59) return null;
+    
+    if (ampm === 'pm' && hours < 12) hours += 12;
+    if (ampm === 'am' && hours === 12) hours = 0;
+    
+    return hours * 60 + minutes;
+  }
+  
+  // Try to match HH AM/PM or HH
+  const match2 = clean.match(/^(\d{1,2})\s*(am|pm)$/);
+  if (match2) {
+    let hours = parseInt(match2[1], 10);
+    const ampm = match2[2];
+    
+    if (hours < 0 || hours > 23) return null;
+    
+    if (ampm === 'pm' && hours < 12) hours += 12;
+    if (ampm === 'am' && hours === 12) hours = 0;
+    
+    return hours * 60;
+  }
+  
+  return null;
+}
+
 const formSchema = z.object({
   schoolName: z.string().min(2, "School name is required"),
   poBox: z.string().optional(),
@@ -30,8 +66,16 @@ const formSchema = z.object({
   studentsCount: z.coerce.number().min(1, "At least 1 student is required"),
   reservationsCount: z.coerce.number().min(1, "At least 1 reservation is required"),
   teachersCount: z.string().optional(),
-  arrivalTime: z.string().optional(),
-  departureTime: z.string().optional(),
+  arrivalTime: z.string().refine((val) => {
+    if (!val) return true; // Optional field
+    const mins = parseTimeToMinutes(val);
+    return mins !== null && mins >= 480 && mins <= 1020;
+  }, { message: "Arrival time must be between 8:00 AM and 17:00 PM" }),
+  departureTime: z.string().refine((val) => {
+    if (!val) return true; // Optional field
+    const mins = parseTimeToMinutes(val);
+    return mins !== null && mins >= 420 && mins <= 1020;
+  }, { message: "Departure time must be between 7:00 AM and 17:00 PM" }),
 });
 
 type BookingFormProps = {

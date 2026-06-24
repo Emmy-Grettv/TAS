@@ -3,6 +3,7 @@ import { CreateBookingDto, UpdateBookingDto, BookingQueryDto, RejectBookingDto }
 export declare class BookingsController {
     private readonly bookingsService;
     constructor(bookingsService: BookingsService);
+    createPublic(dto: CreateBookingDto): Promise<import("./entities/booking.entity").Booking>;
     getStats(): Promise<{
         total: number;
         pending: number;

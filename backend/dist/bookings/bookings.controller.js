@@ -25,6 +25,9 @@ let BookingsController = class BookingsController {
     constructor(bookingsService) {
         this.bookingsService = bookingsService;
     }
+    createPublic(dto) {
+        return this.bookingsService.create(dto, null);
+    }
     getStats() {
         return this.bookingsService.getStats();
     }
@@ -55,12 +58,21 @@ let BookingsController = class BookingsController {
 };
 exports.BookingsController = BookingsController;
 __decorate([
+    (0, common_1.Post)('public'),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [booking_dto_1.CreateBookingDto]),
+    __metadata("design:returntype", void 0)
+], BookingsController.prototype, "createPublic", null);
+__decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     (0, common_1.Get)('stats'),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", void 0)
 ], BookingsController.prototype, "getStats", null);
 __decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     (0, common_1.Get)(),
     __param(0, (0, common_1.Query)()),
     __param(1, (0, common_1.Request)()),
@@ -69,6 +81,7 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], BookingsController.prototype, "findAll", null);
 __decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     (0, common_1.Get)(':id'),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
@@ -76,6 +89,7 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], BookingsController.prototype, "findOne", null);
 __decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     (0, common_1.Post)(),
     __param(0, (0, common_1.Body)()),
     __param(1, (0, common_1.Request)()),
@@ -84,6 +98,7 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], BookingsController.prototype, "create", null);
 __decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     (0, common_1.Patch)(':id'),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
@@ -92,6 +107,7 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], BookingsController.prototype, "update", null);
 __decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     (0, common_1.Delete)(':id'),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
@@ -99,6 +115,7 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], BookingsController.prototype, "remove", null);
 __decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     (0, roles_decorator_1.Roles)(user_entity_1.UserRole.ADMIN),
     (0, common_1.Post)(':id/approve'),
     __param(0, (0, common_1.Param)('id')),
@@ -107,6 +124,7 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], BookingsController.prototype, "approve", null);
 __decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     (0, roles_decorator_1.Roles)(user_entity_1.UserRole.ADMIN),
     (0, common_1.Post)(':id/reject'),
     __param(0, (0, common_1.Param)('id')),
@@ -116,7 +134,6 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], BookingsController.prototype, "reject", null);
 exports.BookingsController = BookingsController = __decorate([
-    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     (0, common_1.Controller)('bookings'),
     __metadata("design:paramtypes", [bookings_service_1.BookingsService])
 ], BookingsController);
