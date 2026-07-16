@@ -6,13 +6,27 @@ import { useState, useEffect } from 'react';
 import { Menu, X, Phone, Mail, MapPin } from 'lucide-react';
 import './website.css';
 
-const nav = [
+type NavItem = {
+  href?: string;
+  label: string;
+  children?: { href: string; label: string }[];
+};
+
+const nav: NavItem[] = [
   { href: '/', label: 'Home' },
-  { href: '/about', label: 'About' },
+  { href: '/#about', label: 'About' },
   { href: '/activities', label: 'Activities' },
+  { 
+    label: 'Packages',
+    children: [
+      { href: '/packages/school', label: 'School Packages' },
+      // { href: '/packages/party', label: 'Party Packages' }
+    ]
+  },
+  { href: '/restaurant', label: 'Restaurant' },
   { href: '/gallery', label: 'Gallery' },
   { href: '/faq', label: 'FAQ' },
-  { href: '/contact', label: 'Contact' },
+  { href: '/#contact', label: 'Contact' },
 ];
 
 export default function WebsiteLayout({ children }: { children: React.ReactNode }) {
@@ -20,11 +34,16 @@ export default function WebsiteLayout({ children }: { children: React.ReactNode 
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
+  // Packages & restaurant pages force a permanently white header
+  const isWhiteHeaderPage = pathname.startsWith('/packages') || pathname.startsWith('/restaurant');
+  const scrollThreshold = isWhiteHeaderPage ? -1 : 10;
+
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 10);
+    const onScroll = () => setScrolled(window.scrollY > scrollThreshold);
     window.addEventListener('scroll', onScroll);
+    onScroll(); // run once on mount to set correct initial state
     return () => window.removeEventListener('scroll', onScroll);
-  }, []);
+  }, [scrollThreshold]);
 
   useEffect(() => { setMenuOpen(false); }, [pathname]);
 
@@ -33,30 +52,30 @@ export default function WebsiteLayout({ children }: { children: React.ReactNode 
 
   return (
     <div className="website-root min-h-screen flex flex-col">
-      {/* ── Top bar ── */}
-      <div className="hidden md:block bg-[#29A8C4] text-white text-sm">
-        <div className="max-w-6xl mx-auto px-6 py-8 flex justify-between items-center">
-          <div className="flex gap-5 items-center">
-            <a href="tel:+263781499656" className="flex items-center gap-1.5 hover:text-white/80 transition-colors">
-              <Phone className="w-3 h-3" /> +263 781 499 656
-            </a>
-            <a href="mailto:teganoinvestmentpvtltd@gmail.com" className="flex items-center gap-1.5 hover:text-white/80 transition-colors">
-              <Mail className="w-3 h-3" /> teganoinvestmentpvtltd@gmail.com
-            </a>
+      {/* ── Header Wrapper (Overlay over Hero) ── */}
+      <div className="header-wrapper">
+        {/* ── Top bar ── */}
+        {/* <div className="hidden md:block topbar-strip">
+          <div className="max-w-6xl mx-auto px-6 py-2.5 flex justify-between items-center">
+            <div className="flex gap-6 items-center">
+              <a href="tel:+263781499656" className="topbar-link">
+                <Phone className="w-3 h-3" /> +263 781 499 656
+              </a>
+              <a href="mailto:teganoinvestmentpvtltd@gmail.com" className="topbar-link">
+                <Mail className="w-3 h-3" /> teganoinvestmentpvtltd@gmail.com
+              </a>
+            </div>
+            <span className="topbar-hours">Mon–Fri 08:00–17:00 &nbsp;|&nbsp; Sat 08:00–16:00</span>
           </div>
-          <span className="text-white">Mon–Fri 08:00–17:00 &nbsp;|&nbsp; Sat 08:00–16:00</span>
-        </div>
-      </div>
+        </div> */}
 
-      {/* ── Header ── */}
-      <header
-        className={`sticky top-0 z-50 transition-all duration-300 ${
-          scrolled
-            ? 'bg-white backdrop-blur-md shadow-sm border-b border-slate-100'
-            : 'bg-white backdrop-blur-sm'
-        }`}
-      >
-        <div className="max-w-6xl mx-auto px-6 flex items-center justify-between h-24 gap-8">
+        {/* ── Header ── */}
+        <header
+          className={`site-header transition-all duration-300 ${
+            scrolled ? 'site-header--scrolled animate-fade-in' : 'site-header--top'
+          }`}
+        >
+        <div className="max-w-6xl mx-auto px-6 flex items-center justify-between h-20 gap-8">
           {/* Logo */}
           <div className="flex-1 flex items-center">
             <Link href="/" className="shrink-0">
@@ -65,47 +84,66 @@ export default function WebsiteLayout({ children }: { children: React.ReactNode 
                 alt="Tegano Recreation Center"
                 width={180}
                 height={80}
-                className="h-16 w-auto object-contain"
+                className="h-14 w-auto object-contain header-logo"
                 priority
               />
             </Link>
           </div>
 
           {/* Desktop nav */}
-          <nav className="hidden lg:flex items-center justify-center gap-1">
+          <nav className="hidden lg:flex items-center justify-center gap-0.5">
             {nav.map(n => (
-              <Link
-                key={n.href}
-                href={n.href}
-                className={`px-3.5 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                  isActive(n.href)
-                    ? 'text-[#29A8C4]'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
-                }`}
-              >
-                {n.label}
-              </Link>
+              n.children ? (
+                <div key={n.label} className="relative group">
+                  <button className="nav-link">
+                    <span className="inline-flex items-center gap-1 whitespace-nowrap">
+                      {n.label}
+                      <svg className="w-4 h-4 shrink-0 transition-transform group-hover:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </span>
+                  </button>
+                  <div className="absolute top-full left-0 mt-2 w-48 bg-white shadow-xl rounded-xl border border-slate-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 flex flex-col py-2">
+                    {n.children.map(child => (
+                      <Link
+                        key={child.href}
+                        href={child.href}
+                        className={`px-4 py-2 text-sm font-medium hover:bg-slate-50 hover:text-accent-teal transition-colors ${isActive(child.href) ? 'text-[#29A8C4]' : 'text-slate-700'}`}
+                      >
+                        {child.label}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <Link
+                  key={n.href}
+                  href={n.href!}
+                  className={`nav-link ${
+                    isActive(n.href!) ? 'nav-link--active' : ''
+                  }`}
+                >
+                  {n.label}
+                </Link>
+              )
             ))}
           </nav>
 
           {/* Desktop Book Now */}
           <div className="hidden lg:flex flex-1 items-center justify-end">
-            <Link
-              href="/book-now"
-              className="px-5 py-2 bg-[#29A8C4] text-white text-sm font-semibold rounded-lg hover:bg-[#1e8fa8] transition-all duration-200 shadow-sm"
-            >
+            <Link href="/book-now" className="nav-book-btn">
               Book Now
             </Link>
           </div>
 
           {/* Mobile controls */}
           <div className="flex items-center gap-3 lg:hidden">
-            <Link href="/book-now" className="px-4 py-2 bg-[#29A8C4] text-white text-xs font-semibold rounded-lg hover:bg-[#1e8fa8] transition-colors">
+            <Link href="/book-now" className="nav-book-btn text-xs px-4 py-2">
               Book Now
             </Link>
             <button
               onClick={() => setMenuOpen(!menuOpen)}
-              className="p-2 rounded-lg text-slate-600 hover:bg-slate-100 transition-colors"
+              className="p-2 rounded-lg transition-colors mobile-menu-btn"
               aria-label="Toggle menu"
             >
               {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -117,21 +155,47 @@ export default function WebsiteLayout({ children }: { children: React.ReactNode 
         {menuOpen && (
           <div className="lg:hidden border-t border-slate-100 bg-white px-6 py-3 flex flex-col gap-0.5">
             {nav.map(n => (
-              <Link
-                key={n.href}
-                href={n.href}
-                className={`px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
-                  isActive(n.href)
-                    ? 'text-[#29A8C4] '
-                    : 'text-slate-700 hover:bg-slate-50'
-                }`}
-              >
-                {n.label}
-              </Link>
+              n.children ? (
+                <div key={n.label} className="flex flex-col gap-1">
+                  <div className="px-3 py-2.5 rounded-lg text-sm font-bold text-slate-900 bg-slate-50">
+                    {n.label}
+                  </div>
+                  <div className="pl-6 flex flex-col gap-0.5">
+                    {n.children.map(child => (
+                      <Link
+                        key={child.href}
+                        href={child.href}
+                        onClick={() => setMenuOpen(false)}
+                        className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                          isActive(child.href)
+                            ? 'text-[#29A8C4] '
+                            : 'text-slate-600 hover:bg-slate-50'
+                        }`}
+                      >
+                        {child.label}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <Link
+                  key={n.href}
+                  href={n.href!}
+                  onClick={() => setMenuOpen(false)}
+                  className={`px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                    isActive(n.href!)
+                      ? 'text-[#29A8C4] '
+                      : 'text-slate-700 hover:bg-slate-50'
+                  }`}
+                >
+                  {n.label}
+                </Link>
+              )
             ))}
           </div>
         )}
       </header>
+      </div>
 
       {/* ── Page content ── */}
       <main className="flex-1">{children}</main>
@@ -169,7 +233,7 @@ export default function WebsiteLayout({ children }: { children: React.ReactNode 
             <div>
               <h4 className="text-xs font-semibold text-white uppercase tracking-widest mb-4">Pages</h4>
               <ul className="grid grid-cols-2 gap-x-4 gap-y-2">
-                {[...nav, { href: '/book-now', label: 'Book Now' }].map(n => (
+                {[...nav.flatMap(n => n.children ? n.children : [{ href: n.href || '', label: n.label }]), { href: '/book-now', label: 'Book Now' }].map(n => (
                   <li key={n.href}>
                     <Link href={n.href} className="text-sm text-white hover:text-white/80 transition-colors">{n.label}</Link>
                   </li>
@@ -208,15 +272,10 @@ export default function WebsiteLayout({ children }: { children: React.ReactNode 
                 ))}
               </ul>
               <Link href="/book-now"
-                className="mt-6 inline-block px-5 py-2 bg-[#29A8C4] text-white text-xs font-semibold rounded-lg hover:bg-[#1e8fa8] transition-colors">
+                className="mt-6 inline-block px-5 py-2 bg-[#29A8C4] text-white text-xs font-semibold rounded-md hover:bg-[#1e8fa8] transition-colors">
                 Book a Visit
               </Link>
             </div>
-          </div>
-
-          <div className="flex flex-col sm:flex-row justify-between items-center pt-6 text-xs text-white gap-2">
-            <p>© {new Date().getFullYear()} Tegano Recreation Center. All rights reserved.</p>
-            <p>Made with care for children&apos;s joy</p>
           </div>
         </div>
       </footer>

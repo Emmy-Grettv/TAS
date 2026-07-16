@@ -30,10 +30,7 @@ const INITIAL: FormData = {
 };
 
 const entranceOptions = [
-  'Kids Entrance Only',
-  'Kids Entrance + Meals',
-  'Kids Entrance + Meals + Rides',
-  'Full Package (All Inclusive)',
+  'School package',
 ];
 
 function StepIndicator({ current }: { current: number }) {
@@ -42,17 +39,17 @@ function StepIndicator({ current }: { current: number }) {
       {steps.map((label, i) => (
         <div key={i} className="flex items-center gap-2">
           <div className="flex flex-col items-center">
-            <div className={`w-9 h-9 rounded-lg flex items-center justify-center text-sm font-bold border-2 transition-all ${
-              i < current ? 'bg-[#29A8C4] border-[#29A8C4] text-white' :
-              i === current ? 'bg-white border-[#29A8C4] text-[#29A8C4]' :
-              'bg-white border-slate-200 text-slate-300'
+            <div className={`w-9 h-9 rounded-md flex items-center justify-center text-sm font-bold border-2 transition-all ${
+              i < current ? 'bg-slate-900 text-white' :
+              i === current ? 'bg-slate-900 border-white text-white' :
+              'bg-white border-slate-900 text-slate-700'
             }`}>
               {i < current ? <CheckCircle className="w-5 h-5" /> : i + 1}
             </div>
-            <span className={`text-xs mt-1 font-semibold hidden sm:block ${i === current ? 'text-[#29A8C4]' : 'text-slate-400'}`}>{label}</span>
+            <span className={`text-sm mt-1 font-bold hidden sm:block ${i === current ? 'text-slate-900' : 'text-slate-900'}`}>{label}</span>
           </div>
           {i < steps.length - 1 && (
-            <div className={`w-10 sm:w-20 h-0.5 mb-4 ${i < current ? 'bg-[#29A8C4]' : 'bg-slate-200'}`} />
+            <div className={`w-10 sm:w-20 h-0.5 mb-4 ${i < current ? 'bg-slate-900' : 'bg-slate-200'}`} />
           )}
         </div>
       ))}
@@ -63,8 +60,8 @@ function StepIndicator({ current }: { current: number }) {
 function Field({ label, required, children }: { label: string; required?: boolean; children: React.ReactNode }) {
   return (
     <div>
-      <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-        {label} {required && <span className="text-[#29A8C4]">*</span>}
+      <label className="block text-sm font-semibold text-slate-700 mb-1.5">
+        {label} {required && <span className="text-slate-900">*</span>}
       </label>
       {children}
     </div>
@@ -145,7 +142,6 @@ export default function BookNowPage() {
       {/* Hero */}
       <section className="bg-slate-900 pt-20 pb-16 text-white">
         <div className="max-w-6xl mx-auto px-6 text-center">
-          <span className="text-xs font-semibold text-[#29A8C4] uppercase tracking-widest mb-3 block">Reservation</span>
           <h1 className="text-4xl lg:text-5xl font-bold text-white mb-4">Book Your Visit</h1>
           <p className="text-slate-400 text-lg max-w-xl mx-auto">Complete the form below and our team will confirm your reservation within 24 hours.</p>
         </div>
@@ -153,7 +149,7 @@ export default function BookNowPage() {
 
       {/* Form */}
       <section className="py-16 bg-slate-50">
-        <div className="max-w-xl mx-auto px-6">
+        <div className="max-w-3xl mx-auto">
           <StepIndicator current={step} />
 
           <div className="bg-white rounded-xl p-8 border border-slate-100">
@@ -161,8 +157,8 @@ export default function BookNowPage() {
             {step === 0 && (
               <div className="space-y-5">
                 <div>
-                  <h2 className="text-lg font-bold text-slate-900">Organization Details</h2>
-                  <p className="text-slate-500 text-xs mt-0.5">Tell us about the school or organization visiting us.</p>
+                  <h2 className="text-lg font-bold text-md text-slate-900">Organization Details</h2>
+                  <p className="text-slate-800 text-sm mt-0.5">Tell us about the school or organization visiting us.</p>
                   <div className="w-10 h-0.5 bg-[#29A8C4] rounded-full mt-3" />
                 </div>
                 <Field label="School / Organization Name" required>
@@ -284,7 +280,7 @@ export default function BookNowPage() {
               </button>
               {step < 3 ? (
                 <button onClick={next}
-                  className="px-5 py-2.5 rounded-lg bg-[#29A8C4] text-white font-semibold text-sm hover:bg-[#1e8fa8] transition-colors flex items-center gap-2">
+                  className="px-5 py-2.5 rounded-md bg-[#29A8C4] text-white font-semibold text-sm hover:bg-[#1e8fa8] transition-colors flex items-center gap-2">
                   Next Step <ArrowRight className="w-4 h-4" />
                 </button>
               ) : (

@@ -6,8 +6,13 @@ import { Toaster } from "@/components/ui/sonner";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Tegano Recreation Center CMS",
-  description: "Customer Management System for Tegano Recreation Center",
+  title: "Tegano Recreation Center",
+  description: "Premier Kids Recreation Center in Harare, Zimbabwe",
+  icons: {
+    icon: '/logo.png',
+    shortcut: '/logo.png',
+    apple: '/logo.png',
+  },
 };
 
 export default function RootLayout({

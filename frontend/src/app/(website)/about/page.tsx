@@ -1,14 +1,15 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { Shield, Heart, Star, Users, Eye, Zap, ArrowRight, CheckCircle } from 'lucide-react';
+import { Shield, Heart, Star, Users, Eye, Zap, ArrowRight, CheckCircle, MapPin, Smile, DollarSign } from 'lucide-react';
 
 const values = [
-  { icon: Shield, title: 'Safety', desc: 'Every activity is supervised with child safety as our top priority.' },
-  { icon: Heart, title: 'Care', desc: 'We treat every child with warmth in a nurturing environment.' },
-  { icon: Star, title: 'Excellence', desc: 'Committed to delivering world-class recreational experiences.' },
-  { icon: Users, title: 'Inclusion', desc: 'Activities designed for all children regardless of ability.' },
-  { icon: Eye, title: 'Transparency', desc: 'We communicate openly and keep parents fully informed.' },
-  { icon: Zap, title: 'Innovation', desc: 'Constantly updating activities to keep children engaged.' },
+  { icon: Shield, title: 'Safe and supervised environment', desc: 'Every activity is monitored closely to ensure maximum child safety.' },
+  { icon: Smile, title: 'Fun for all age groups', desc: 'A wide range of engaging activities designed for toddlers to teens.' },
+  { icon: Heart, title: 'Excellent customer service', desc: 'Our dedicated staff is always ready to help and ensure you have a great time.' },
+  { icon: Eye, title: 'Spacious outdoor setup', desc: 'Plenty of room for children to run, play, and explore freely.' },
+  { icon: DollarSign, title: 'Affordable packages', desc: 'Great value options for families, school trips, and private events.' },
+  { icon: MapPin, title: 'Convenient location', desc: 'Easily accessible at 26 Princess Drive, Newlands, Harare.' },
+  { icon: Star, title: 'Delicious meals available', desc: 'Quality food and refreshments to keep the energy levels high.' },
 ];
 
 const team = [
@@ -58,9 +59,16 @@ export default function AboutPage() {
             <h2 className="text-3xl font-bold text-slate-900 mb-3">From a Dream to Zimbabwe&apos;s Premier Recreation Center</h2>
             <div className="w-10 h-0.5 bg-[#29A8C4] rounded-full mb-6" />
             <div className="space-y-4 text-slate-600 leading-relaxed text-sm">
-              <p>Tegano Recreation Center was founded with a single, powerful vision: to create a place where every child in Zimbabwe could experience the pure joy of play in a safe, professionally managed environment.</p>
-              <p>Located at 26 Princess Drive, Newlands, Harare, we have welcomed thousands of children from schools, families, and community groups across the country.</p>
-              <p>Today, we are proud to be the go-to destination for school trips in Harare — trusted by over 100 schools and celebrated by parents for our commitment to safety and fun.</p>
+              <p>Tegano Recreation Center is a premier kids’ recreational destination in Harare, offering a vibrant space where children can play, explore, learn, and create joyful memories.</p>
+              <p>We are committed to providing:</p>
+              <ul className="list-disc pl-5 space-y-1">
+                <li>Safe and supervised play experiences</li>
+                <li>Fun outdoor and water activities</li>
+                <li>Quality food and refreshments</li>
+                <li>Family-friendly relaxation spaces</li>
+                <li>School and corporate group packages</li>
+              </ul>
+              <p>Whether you are visiting with family, bringing learners for a school trip, or organizing a private event, Tegano offers an exciting experience for everyone.</p>
             </div>
           </div>
           {/* Milestone grid */}
@@ -84,14 +92,14 @@ export default function AboutPage() {
               <Star className="w-5 h-5 text-[#29A8C4]" />
             </div>
             <h3 className="text-xl font-bold text-slate-900 mb-3">Our Mission</h3>
-            <p className="text-slate-600 leading-relaxed text-sm">To provide Zimbabwe&apos;s children with world-class recreational experiences that foster physical development, creativity, social skills, and unforgettable memories — in the safest possible environment.</p>
+            <p className="text-slate-600 leading-relaxed text-sm">To provide a safe, fun, and memorable recreation experience that promotes joy, social interaction, and learning.</p>
           </div>
           <div className="bg-white rounded-xl p-8 border border-slate-100">
             <div className="w-10 h-10 bg-[#29A8C4]/10 rounded-lg flex items-center justify-center mb-4">
               <Eye className="w-5 h-5 text-[#29A8C4]" />
             </div>
             <h3 className="text-xl font-bold text-slate-900 mb-3">Our Vision</h3>
-            <p className="text-slate-600 leading-relaxed text-sm">To be the leading children&apos;s recreation center across Southern Africa, recognized for excellence in safety, innovation, and the transformative power of play for every child.</p>
+            <p className="text-slate-600 leading-relaxed text-sm">To become Zimbabwe’s leading family recreation and entertainment destination.</p>
           </div>
         </div>
       </section>
@@ -100,8 +108,8 @@ export default function AboutPage() {
       <section className="py-20 bg-white">
         <div className="max-w-6xl mx-auto px-6">
           <div className="text-center mb-12">
-            <span className="text-xs font-semibold text-[#29A8C4] uppercase tracking-widest mb-3 block">What We Stand For</span>
-            <h2 className="text-3xl font-bold text-slate-900">Our Core Values</h2>
+            <span className="text-xs font-semibold text-[#29A8C4] uppercase tracking-widest mb-3 block">Why Choose Us</span>
+            <h2 className="text-3xl font-bold text-slate-900">Why Choose Us</h2>
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {values.map(({ icon: Icon, title, desc }) => (

@@ -104,7 +104,7 @@ export default function FAQPage() {
           <h2 className="text-2xl font-bold text-slate-900 mb-2">Still Have Questions?</h2>
           <p className="text-slate-500 text-sm mb-7">Our team is happy to help. Reach out and we&apos;ll respond within 24 hours.</p>
           <div className="flex flex-wrap gap-3 justify-center">
-            <Link href="/contact"
+            <Link href="/#contact"
               className="px-6 py-2.5 bg-[#29A8C4] text-white text-sm font-semibold rounded-lg hover:bg-[#1e8fa8] transition-colors">
               Contact Us
             </Link>
