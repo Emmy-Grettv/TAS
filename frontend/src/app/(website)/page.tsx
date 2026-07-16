@@ -626,7 +626,7 @@ export default function HomePage() {
           <div className="contact-card-premium grid lg:grid-cols-2 gap-16 relative z-10">
 
             {/* Left Contact Info */}
-            <div className="flex flex-col justify-between">
+            <div className="flex flex-col justify-between ">
               <div>
                 <span className="text-white">Get In Touch</span>
                 <h2 className="text-3xl lg:text-4xl font-extrabold text-white mb-6 leading-tight">

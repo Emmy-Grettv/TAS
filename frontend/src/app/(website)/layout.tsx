@@ -264,7 +264,7 @@ export default function WebsiteLayout({ children }: { children: React.ReactNode 
             <div>
               <h4 className="text-xs font-semibold text-white uppercase tracking-widest mb-4">Hours</h4>
               <ul className="space-y-2 text-sm">
-                {[['Mon – Fri', '08:00 – 17:00'], ['Saturday', '08:00 – 16:00'], ['Sunday', '09:00 – 14:00']].map(([day, hrs]) => (
+                {[['Open Daily', '10:00 AM – 5:00 PM']].map(([day, hrs]) => (
                   <li key={day} className="flex justify-between gap-4">
                     <span>{day}</span>
                     <span className="text-white font-medium">{hrs}</span>
