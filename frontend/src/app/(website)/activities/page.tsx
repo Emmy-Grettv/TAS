@@ -3,7 +3,7 @@ import { Clock, Users, Calendar, ArrowRight } from 'lucide-react';
 
 const activities = [
   {
-    img: '/images/IMG_4256.jpg',
+    img: '/images/IMG_4256.JPG',
     title: 'Electric Go-Kart Racing', cat: 'Rides',
     desc: 'Students drive mini electric go-karts on a safe track designed for children.',
     age: 'All ages', duration: 'Open play', schedule: 'All days',
@@ -45,7 +45,7 @@ const activities = [
     age: 'All ages', duration: 'Open play', schedule: 'All days',
   },
   {
-     img: '/images/IMG_4262.jpg',
+     img: '/images/IMG_4262.JPG',
     title: 'Inflatable Water Climbing Wall', cat: 'Water',
     desc: 'A soft inflatable climbing wall placed in the pool for balance and fun.',
     age: 'All ages', duration: 'Open play', schedule: 'All days',

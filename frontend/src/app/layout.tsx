@@ -9,9 +9,9 @@ export const metadata: Metadata = {
   title: "Tegano Recreation Center",
   description: "Premier Kids Recreation Center in Harare, Zimbabwe",
   icons: {
-    icon: '/logo.png',
-    shortcut: '/logo.png',
-    apple: '/logo.png',
+    icon: '/favicon.ico',
+    shortcut: '/favicon.ico',
+    apple: '/favicon.ico',
   },
 };
 

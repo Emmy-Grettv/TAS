@@ -26,7 +26,7 @@ import {
 
 const activities = [
   {
-    img: '/images/IMG_4256.jpg',
+    img: '/images/IMG_4256.JPG',
     title: 'Electric Go-Kart Racing',
     age: 'All ages',
     desc: 'Students drive mini electric go-karts on a safe track designed for children.',
@@ -68,7 +68,7 @@ const activities = [
     desc: 'Inflatable slides allowing children to climb and slide into the splash pool.',
   },
   {
-    img: '/images/IMG_4262.jpg',
+    img: '/images/IMG_4262.JPG',
     title: 'Inflatable Water Climbing Wall',
     age: 'All ages',
     desc: 'A soft inflatable climbing wall placed in the pool for balance and fun.',
@@ -384,7 +384,7 @@ export default function HomePage() {
             {/* Featured Left Card */}
             <div className="activity-card-large relative">
               <Image
-                src="/images/IMG_4257.jpg"
+                src="/images/IMG_4257.JPG"
                 alt="Go-Kart racing track"
                 fill
                 sizes="(max-width: 768px) 100vw, 50vw"
