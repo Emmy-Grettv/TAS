@@ -2,19 +2,48 @@ import {
   Injectable,
   NotFoundException,
   ConflictException,
+  OnModuleInit,
+  Logger,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcryptjs';
-import { User } from './entities/user.entity';
+import { User, UserRole } from './entities/user.entity';
 import { CreateUserDto, UpdateUserDto, ResetPasswordDto } from './dto/user.dto';
 
 @Injectable()
-export class UsersService {
+export class UsersService implements OnModuleInit {
+  private readonly logger = new Logger(UsersService.name);
+
   constructor(
     @InjectRepository(User)
     private usersRepo: Repository<User>,
   ) {}
+
+  async onModuleInit() {
+    await this.seedDefaultAdmin();
+  }
+
+  async seedDefaultAdmin() {
+    const email = process.env.SEED_ADMIN_EMAIL || 'admin@tegano.com';
+    const password = process.env.SEED_ADMIN_PASSWORD || 'Admin@123';
+    const name = process.env.SEED_ADMIN_NAME || 'Administrator';
+
+    const existing = await this.findByEmail(email);
+    if (!existing) {
+      const hashed = await bcrypt.hash(password, 10);
+      const user = this.usersRepo.create({
+        name,
+        email,
+        password: hashed,
+        role: UserRole.ADMIN,
+      });
+      await this.usersRepo.save(user);
+      this.logger.log(`🌱 Default Admin seeded on deployment: ${email}`);
+    } else {
+      this.logger.log(`✅ Admin account ready: ${email}`);
+    }
+  }
 
   async findAll(): Promise<Omit<User, 'password'>[]> {
     const users = await this.usersRepo.find({ order: { createdAt: 'DESC' } });

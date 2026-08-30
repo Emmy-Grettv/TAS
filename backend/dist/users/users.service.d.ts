@@ -1,9 +1,13 @@
+import { OnModuleInit } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import { CreateUserDto, UpdateUserDto, ResetPasswordDto } from './dto/user.dto';
-export declare class UsersService {
+export declare class UsersService implements OnModuleInit {
     private usersRepo;
+    private readonly logger;
     constructor(usersRepo: Repository<User>);
+    onModuleInit(): Promise<void>;
+    seedDefaultAdmin(): Promise<void>;
     findAll(): Promise<Omit<User, 'password'>[]>;
     findOne(id: string): Promise<User>;
     findByEmail(email: string): Promise<User | null>;

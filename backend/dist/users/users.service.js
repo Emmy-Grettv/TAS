@@ -44,6 +44,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
+var UsersService_1;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UsersService = void 0;
 const common_1 = require("@nestjs/common");
@@ -51,10 +52,34 @@ const typeorm_1 = require("@nestjs/typeorm");
 const typeorm_2 = require("typeorm");
 const bcrypt = __importStar(require("bcryptjs"));
 const user_entity_1 = require("./entities/user.entity");
-let UsersService = class UsersService {
+let UsersService = UsersService_1 = class UsersService {
     usersRepo;
+    logger = new common_1.Logger(UsersService_1.name);
     constructor(usersRepo) {
         this.usersRepo = usersRepo;
+    }
+    async onModuleInit() {
+        await this.seedDefaultAdmin();
+    }
+    async seedDefaultAdmin() {
+        const email = process.env.SEED_ADMIN_EMAIL || 'admin@tegano.com';
+        const password = process.env.SEED_ADMIN_PASSWORD || 'Admin@123';
+        const name = process.env.SEED_ADMIN_NAME || 'Administrator';
+        const existing = await this.findByEmail(email);
+        if (!existing) {
+            const hashed = await bcrypt.hash(password, 10);
+            const user = this.usersRepo.create({
+                name,
+                email,
+                password: hashed,
+                role: user_entity_1.UserRole.ADMIN,
+            });
+            await this.usersRepo.save(user);
+            this.logger.log(`🌱 Default Admin seeded on deployment: ${email}`);
+        }
+        else {
+            this.logger.log(`✅ Admin account ready: ${email}`);
+        }
     }
     async findAll() {
         const users = await this.usersRepo.find({ order: { createdAt: 'DESC' } });
@@ -112,7 +137,7 @@ let UsersService = class UsersService {
     }
 };
 exports.UsersService = UsersService;
-exports.UsersService = UsersService = __decorate([
+exports.UsersService = UsersService = UsersService_1 = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, typeorm_1.InjectRepository)(user_entity_1.User)),
     __metadata("design:paramtypes", [typeorm_2.Repository])
