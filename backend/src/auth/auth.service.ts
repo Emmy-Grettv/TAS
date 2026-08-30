@@ -3,6 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
 import { UsersService } from '../users/users.service';
 import { LoginDto } from './dto/login.dto';
+import { ChangePasswordDto } from '../users/dto/user.dto';
 
 @Injectable()
 export class AuthService {
@@ -41,5 +42,21 @@ export class AuthService {
       email: user.email,
       role: user.role,
     };
+  }
+
+  async changePassword(userId: string, dto: ChangePasswordDto): Promise<{ message: string }> {
+    const user = await this.usersService.findOne(userId);
+    
+    // Verify current password
+    const isValidPassword = await bcrypt.compare(dto.currentPassword, user.password);
+    if (!isValidPassword) {
+      throw new UnauthorizedException('Current password is incorrect');
+    }
+
+    // Update to new password
+    user.password = await bcrypt.hash(dto.newPassword, 10);
+    await this.usersService.updatePassword(userId, user.password);
+
+    return { message: 'Password updated successfully' };
   }
 }

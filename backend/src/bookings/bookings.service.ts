@@ -108,7 +108,7 @@ export class BookingsService {
     // Generate PDF
     const pdfFileName = `Reservation_${booking.id.split('-')[0]}.pdf`;
     const pdfPath = path.join(__dirname, '..', '..', 'uploads', 'bookings', pdfFileName);
-    
+
     await this.generateReservationPdf(booking, pdfPath);
 
     // Update Status
@@ -142,7 +142,7 @@ Tegano Recreation Center`;
 
   async reject(id: string, dto: RejectBookingDto): Promise<{ message: string }> {
     const booking = await this.findOne(id);
-    
+
     booking.status = BookingStatus.REJECTED;
     booking.rejectionReason = dto.rejectionReason;
     await this.bookingsRepo.save(booking);
@@ -168,53 +168,167 @@ Tegano Recreation Center`;
     return { message: 'Booking rejected successfully' };
   }
 
+  private getAssetPath(filename: string): string | null {
+    const candidates = [
+      path.join(__dirname, '..', 'assets', filename),
+      path.join(__dirname, '..', '..', 'assets', filename),
+      path.join(process.cwd(), 'assets', filename),
+      path.join(process.cwd(), 'src', 'assets', filename),
+      path.join(process.cwd(), 'dist', 'assets', filename),
+      path.join(process.cwd(), '..', 'frontend', 'public', 'images', filename),
+    ];
+    for (const p of candidates) {
+      if (fs.existsSync(p)) return p;
+    }
+    return null;
+  }
+
+  /**
+   * Collects up to 6 activity photos for the Annexure 1 grid.
+   * Tries the preferred `activityN.*` naming first, then falls back to
+   * legacy filenames that may already exist in the assets folder, and
+   * finally falls back to the flyer image so the grid is never empty.
+   */
+  private getActivityImagePaths(maxImages = 6): string[] {
+    const found: string[] = [];
+    const exts = ['jpg', 'JPG', 'jpeg', 'JPEG', 'png', 'PNG'];
+
+    for (let i = 1; i <= maxImages; i++) {
+      for (const ext of exts) {
+        const p = this.getAssetPath(`activity${i}.${ext}`);
+        if (p) {
+          found.push(p);
+          break;
+        }
+      }
+    }
+
+    if (found.length < maxImages) {
+      const legacyNames = [
+        'IMG_4256.JPG',
+        'IMG_4257.JPG',
+        'IMG_4258.JPG',
+        'IMG_4259.JPG',
+        'IMG-20260714-WA0005.jpg',
+        'IMG-20260714-WA0006.jpg',
+        'IMG-20260714-WA0007.jpg',
+        'IMG-20260714-WA0008.jpg',
+      ];
+      for (const name of legacyNames) {
+        if (found.length >= maxImages) break;
+        const p = this.getAssetPath(name);
+        if (p && !found.includes(p)) found.push(p);
+      }
+    }
+
+    if (found.length === 0) {
+      const flyer = this.getAssetPath('flyer.jpg');
+      if (flyer) found.push(flyer);
+    }
+
+    // Pad up to maxImages by reusing what we have, so the grid layout
+    // (fixed slot positions) is identical on every generated PDF instead
+    // of reflowing differently depending on how many assets exist.
+    if (found.length > 0) {
+      let i = 0;
+      while (found.length < maxImages) {
+        found.push(found[i % found.length]);
+        i++;
+      }
+    }
+
+    return found.slice(0, maxImages);
+  }
+
   private async generateReservationPdf(booking: Booking, filePath: string): Promise<void> {
     return new Promise((resolve, reject) => {
       const doc = new PDFDocument({ margin: 50, size: 'A4' });
       const stream = fs.createWriteStream(filePath);
-      
+
       doc.pipe(stream);
 
-      // --- Page 1: Letter ---
-      const logoPath = fs.existsSync(path.join(__dirname, '..', '..', 'assets', 'logo.png'))
-        ? path.join(__dirname, '..', '..', 'assets', 'logo.png')
-        : path.join(__dirname, '..', 'assets', 'logo.png');
+      const pageWidth = 495; // content width: A4 (595.28pt) minus 50pt margins on each side
+      const pageHeight = doc.page.height;
 
-      if (fs.existsSync(logoPath)) {
-        doc.image(logoPath, 50, 45, { width: 120 });
+      // Shared footer — identical on both pages: tagline, then the two
+      // contact lines, all pinned to the same fixed offsets from the
+      // bottom of the page so page 1 and page 2 always match exactly.
+      const drawFooter = () => {
+        doc.fillColor('#0066cc').font('Helvetica-BoldOblique').fontSize(9)
+           .text('"Where Kids Experience Fun, Adventure, and Learning"', 50, pageHeight - 80, { align: 'center', width: pageWidth, lineBreak: false });
+        doc.fillColor('black').font('Helvetica-Bold').fontSize(8.5)
+           .text('"Follow us: Facebook | Instagram | TikTok"', 50, pageHeight - 65, { align: 'center', width: pageWidth, lineBreak: false });
+        doc.font('Helvetica')
+           .text('DIRECT ALL INQUIRES TO: +263 781499656 / 784700878', 50, pageHeight - 50, { align: 'center', width: pageWidth, lineBreak: false });
+      };
+
+      // Shared header — identical on both pages: logo, company block on the
+      // right, and the horizontal divider rule underneath it that separates
+      // the letterhead from the body content. The divider is positioned
+      // below the full logo image (including the "Recreation Center" text
+      // that's baked into that image) rather than a fixed guess, so it
+      // never cuts through the logo regardless of the asset's proportions.
+      const logoPath = this.getAssetPath('logo.png');
+      const logoTop = 45;
+      const logoWidth = 120;
+      let logoDisplayHeight = 90; // sane fallback if dimensions can't be read
+      if (logoPath) {
+        try {
+          const logoImage = (doc as any).openImage(logoPath);
+          logoDisplayHeight = logoWidth * (logoImage.height / logoImage.width);
+        } catch (e) {
+          this.logger.warn(`Failed to read logo dimensions: ${e.message}`);
+        }
       }
+      const companyBlockBottom = 95; // bottom of the 4-line company address block
+      const dividerY = Math.max(logoTop + logoDisplayHeight, companyBlockBottom) + 10;
+      const reservationDateY = dividerY + 14;
+      const toY = reservationDateY + 20;
 
-      doc.font('Helvetica-Bold').fontSize(10).fillColor('#0066cc')
-         .text('TEGANO INVESTMENT (PVT) LTD', 300, 50, { align: 'right', width: 240 })
-         .font('Helvetica')
-         .text('26 Princess Drive, Newlands, Harare', { align: 'right', width: 240 })
-         .text('Tel: +263 781499656 / 784700878', { align: 'right', width: 240 })
-         .text('Email: teganoinvestmentpvtltd@gmail.com', { align: 'right', width: 240 });
-         
-      doc.fillColor('black').fontSize(9.5);
-      
+      const drawHeader = () => {
+        if (logoPath) {
+          doc.image(logoPath, 50, logoTop, { width: logoWidth });
+        }
+
+        doc.font('Helvetica-Bold').fontSize(10).fillColor('#0066cc')
+           .text('TEGANO INVESTMENT (PVT) LTD', 300, 50, { align: 'right', width: 240 })
+           .font('Helvetica')
+           .text('26 Princess Drive, Newlands, Harare', { align: 'right', width: 240 })
+           .text('Tel: +263 781499656 / 784700878', { align: 'right', width: 240 })
+           .text('Email: teganoinvestmentpvtltd@gmail.com', { align: 'right', width: 240 });
+
+        // Divider rule under the letterhead — black, and below the whole logo
+        doc.moveTo(50, dividerY).lineTo(50 + pageWidth, dividerY)
+           .lineWidth(1).strokeColor('black').stroke();
+
+        doc.fillColor('black').fontSize(9.5);
+      };
+
+      // --- Page 1: Letter ---
+      drawHeader();
+
       const reservationDate = new Date().toLocaleDateString('en-GB');
-      doc.text(`Reservation Date: ${reservationDate}`, 50, 130, { align: 'right', width: 495 });
-      
-      doc.font('Helvetica-Bold').text(`To: ${booking.schoolName}`, 50, 150, { align: 'left' });
-      doc.font('Helvetica');
+      doc.fontSize(9).text(`Reservation Date: ${reservationDate}`, 50, reservationDateY, { align: 'right', width: pageWidth });
+
+      doc.font('Helvetica-Bold').fontSize(9.5).text(`To: ${booking.schoolName}`, 50, toY, { align: 'left' });
+      doc.font('Helvetica').fontSize(9);
       if (booking.poBox) doc.text(`PO Box: ${booking.poBox}`);
       doc.text(booking.districtArea);
-      
-      doc.moveDown(1.5);
-      doc.font('Helvetica-Bold').text('Re: Reservation Confirmation – School Trip Visit');
-      doc.font('Helvetica').moveDown(1);
-      
+
+      doc.moveDown(0.6);
+      doc.font('Helvetica-Bold').fontSize(10).text('Re: Reservation Confirmation – School Trip Visit');
+      doc.font('Helvetica').fontSize(9).moveDown(0.4);
+
       doc.text(`Dear ${booking.contactPerson},`);
-      doc.moveDown(1);
-      
+      doc.moveDown(0.4);
+
       doc.text('We are pleased to confirm the reservation for your upcoming school trip to Tegano Recreation Center. We are excited to host your students and provide a fun, engaging, and safe recreational experience.');
-      doc.moveDown(1);
-      
+      doc.moveDown(0.4);
+
       doc.text('Please find the details of your reservation below:');
-      doc.moveDown(0.5);
-      
-      doc.font('Helvetica-Bold').fontSize(9.5).list([
+      doc.moveDown(0.3);
+
+      doc.font('Helvetica-Bold').fontSize(9).list([
         `School Name: ${booking.schoolName}`,
         `Date of Visit: ${new Date(booking.dateOfVisit).toLocaleDateString('en-GB')}`,
         `Arrival Time: ${booking.arrivalTime || '09:00 AM'} - Departure Time: ${booking.departureTime || '15:00 PM'}`,
@@ -222,61 +336,71 @@ Tegano Recreation Center`;
         `Number of Students: ${booking.studentsCount} Kids`,
         `Number of Teachers/Chaperones: ${booking.teachersCount || 'N/S'}`,
         `Reservation Reference: TGN/${booking.id.slice(0, 5).toUpperCase()}/${new Date().getFullYear()}`,
-      ], { bulletRadius: 2, textIndent: 8, lineGap: 1 });
+      ], { bulletRadius: 2, textIndent: 6, lineGap: 0 });
 
-      doc.moveDown(0.5);;
-      
-      doc.fillColor('black').font('Helvetica').moveDown(0.8);
+      doc.moveDown(0.4);
+
+      doc.fillColor('black').font('Helvetica').fontSize(9);
       doc.text('Our recreation center provides a safe and exciting environment where students can enjoy a variety of recreational activities designed to encourage physical activity, teamwork, and fun learning experiences.');
-      doc.moveDown(0.5);
+      doc.moveDown(0.3);
       doc.text('A detailed list of activities available during the visit is provided in Annexure 1 attached to this letter.');
-      
-      doc.moveDown(0.8);
-      doc.font('Helvetica-Bold').text('Important Information:');
-      doc.font('Helvetica');
+
+      doc.moveDown(0.4);
+      doc.font('Helvetica-Bold').fontSize(9).text('Important Information:');
+      doc.font('Helvetica').fontSize(8.5);
       doc.list([
         'Students should wear comfortable clothing suitable for play activities.',
         'For water activities, students should bring extra clothes and towels.',
         'Teachers and supervisors are requested to accompany and monitor their groups.'
-      ], { bulletRadius: 2, textIndent: 8 });
-      
-      doc.moveDown(0.8);
-      doc.text('We look forward to welcoming your students for an enjoyable and memorable day at Tegano Recreation Center.');
-      
-      doc.moveDown(0.8);
-      doc.text('Yours sincerely,');
-      doc.moveDown(0.6);
-      doc.font('Helvetica-Bold').text('Emmerson Chitawa');
-      doc.moveDown(0.6);
-      doc.font('Helvetica').text('Facility Supervisor');
-      
-      // Footer
-      const pageHeight = doc.page.height;
-      doc.font('Helvetica-Bold').fontSize(8.5).text('"Follow us: Facebook | Instagram | TikTok"', 50, pageHeight - 65, { align: 'center', width: 495 });
-      doc.font('Helvetica').text('DIRECT ALL INQUIRES TO: +263 781499656 / 784700878', 50, pageHeight - 50, { align: 'center', width: 495 });
-      
-      // --- Page 2: Annexure 1 ---
-      doc.addPage();
+      ], { bulletRadius: 2, textIndent: 6, lineGap: 0 });
 
-      if (fs.existsSync(logoPath)) {
-        doc.image(logoPath, 50, 45, { width: 120 });
+      doc.moveDown(0.4);
+      doc.text('We look forward to welcoming your students for an enjoyable and memorable day at Tegano Recreation Center.');
+
+      doc.moveDown(0.4);
+      doc.text('Yours sincerely,');
+
+      const signaturePath = this.getAssetPath('signature.png') || this.getAssetPath('signature.jpg');
+      const stampPath = this.getAssetPath('stamp.png') || this.getAssetPath('stamp.jpg');
+      if (signaturePath || stampPath) {
+        const graphicY = doc.y + 2;
+        if (signaturePath) {
+          try {
+            doc.image(signaturePath, 50, graphicY, { width: 110 });
+          } catch (e) {
+            this.logger.warn(`Failed to render signature image: ${e.message}`);
+          }
+        }
+        if (stampPath) {
+          try {
+            doc.image(stampPath, 115, graphicY - 5, { width: 85 });
+          } catch (e) {
+            this.logger.warn(`Failed to render stamp image: ${e.message}`);
+          }
+        }
+        doc.x = 50;
+        doc.y = graphicY + 45;
+      } else {
+        doc.moveDown(0.4);
       }
-      
-      doc.font('Helvetica-Bold').fontSize(10).fillColor('#0066cc')
-         .text('TEGANO INVESTMENT (PVT) LTD', 300, 50, { align: 'right', width: 240 })
-         .font('Helvetica')
-         .text('26 Princess Drive, Newlands, Harare', { align: 'right', width: 240 })
-         .text('Tel: +263 781499656 / 784700878', { align: 'right', width: 240 })
-         .text('Email: teganoinvestmentpvtltd@gmail.com', { align: 'right', width: 240 });
-         
-      doc.fillColor('black').fontSize(9.5);
-      doc.font('Helvetica-Bold').text('ANNEXURE 1', 50, 130, { align: 'left' });
-      doc.text('School Trip Activities – Tegano Recreation Center');
-      doc.font('Helvetica').moveDown(0.5);
-      doc.text('During the visit, students will have access to the following supervised recreational activities designed to provide fun, physical exercise, and social interaction in a safe environment:', { width: 495 });
-      doc.moveDown(0.5);
-      
-      doc.fontSize(9);
+
+      doc.font('Helvetica-Bold').fontSize(9).text('Emmerson Chitawa');
+      doc.moveDown(0.2);
+      doc.font('Helvetica').fontSize(8.5).text('Facility Supervisor');
+
+      drawFooter();
+
+      // --- Page 2: Annexure 1 (exactly one page — no overflow page 3) ---
+      doc.addPage();
+      drawHeader();
+
+      doc.font('Helvetica-Bold').fontSize(10).text('ANNEXURE 1', 50, toY, { align: 'left' });
+      doc.fontSize(9.5).text('School Trip Activities – Tegano Recreation Center');
+      doc.font('Helvetica').fontSize(8.5).moveDown(0.3);
+      doc.text('During the visit, students will have access to the following supervised recreational activities designed to provide fun, physical exercise, and social interaction in a safe environment:', { width: pageWidth });
+      doc.moveDown(0.3);
+
+      doc.fontSize(8);
       const activities = [
         '1. Electric Go-Kart Racing – Students drive mini electric go-karts on a safe track.',
         '2. Mini Electric Car & Motorcycle Rides – Children ride battery-powered cars in a supervised area.',
@@ -293,35 +417,92 @@ Tegano Recreation Center`;
       ];
       let currentY = doc.y;
       activities.forEach(item => {
-        doc.text(item, 50, currentY, { width: 495 });
-        currentY = doc.y + 1;
+        doc.text(item, 50, currentY, { width: pageWidth });
+        currentY = doc.y + 0.5;
       });
       doc.y = currentY;
-      
-      doc.fontSize(9.5).moveDown(1);
+
+      doc.fontSize(9).moveDown(0.4);
       doc.font('Helvetica-Bold').text('Sample Pictures of Activities:');
-      doc.moveDown(0.5);
-      
+      doc.moveDown(0.3);
+
+      // --- Photo grid: sized to always fit on this page ---
       const imageY = doc.y;
+      const images = this.getActivityImagePaths(6);
 
-      doc.rect(50, imageY, 230, 120)
-         .fillAndStroke('#f8fafc', '#cbd5e1');
-      doc.fillColor('#475569')
-         .font('Helvetica-Bold')
-         .text('[ Place Image here ]', 50, imageY + 50, { width: 230, align: 'center' });
+      const footerBlockHeight = 40;
+      const safetyNoteHeight = 24;
+      const spacingBeforeNote = 8;
+      const spacingBeforeFooter = 6;
+      const reservedBottom = footerBlockHeight + safetyNoteHeight + spacingBeforeNote + spacingBeforeFooter;
 
-      doc.rect(315, imageY, 230, 120)
-         .fillAndStroke('#f8fafc', '#cbd5e1');
-      doc.fillColor('#475569')
-         .text('[ Place Image here ]', 315, imageY + 50, { width: 230, align: 'center' });
+      const bottomLimit = pageHeight - 50 - reservedBottom;
+      const availableHeight = Math.max(bottomLimit - imageY, 50);
 
-      doc.x = 50;
-      doc.y = imageY + 135;
-      
+      const drawBox = (imgPath: string, x: number, y: number, w: number, h: number, idx: number) => {
+        try {
+          doc.save();
+          doc.rect(x, y, w, h).clip();
+          doc.image(imgPath, x, y, { cover: [w, h], align: 'center', valign: 'center' });
+          doc.restore();
+        } catch (e) {
+          this.logger.warn(`Failed to render activity image ${idx + 1}: ${e.message}`);
+        }
+      };
+
+      if (images.length >= 5) {
+        const boxGap = 6;
+        const rowHeight = Math.min(85, Math.max(50, (availableHeight - boxGap) / 2));
+        const leftWidth = 220;
+        const rightX = 50 + leftWidth + boxGap;
+        const rightCellWidth = (pageWidth - leftWidth - boxGap - boxGap) / 2;
+
+        const row0Y = imageY;
+        const row1Y = imageY + rowHeight + boxGap;
+
+        // Left column: 2 stacked images
+        drawBox(images[0], 50, row0Y, leftWidth, rowHeight, 0);
+        drawBox(images[1], 50, row1Y, leftWidth, rowHeight, 1);
+
+        // Right side: 2x2 grid
+        drawBox(images[2], rightX, row0Y, rightCellWidth, rowHeight, 2);
+        drawBox(images[3], rightX + rightCellWidth + boxGap, row0Y, rightCellWidth, rowHeight, 3);
+        drawBox(images[4], rightX, row1Y, rightCellWidth, rowHeight, 4);
+        if (images[5]) {
+          drawBox(images[5], rightX + rightCellWidth + boxGap, row1Y, rightCellWidth, rowHeight, 5);
+        }
+
+        doc.x = 50;
+        doc.y = row1Y + rowHeight + spacingBeforeNote;
+      } else if (images.length > 0) {
+        const columns = images.length > 2 ? 3 : images.length;
+        const rows = Math.max(1, Math.ceil(images.length / columns));
+        const boxGap = 8;
+        const boxWidth = (pageWidth - (columns - 1) * boxGap) / columns;
+        const boxHeight = Math.min(85, Math.max(50, (availableHeight - (rows - 1) * boxGap) / rows));
+
+        images.forEach((imgPath, idx) => {
+          const col = idx % columns;
+          const row = Math.floor(idx / columns);
+          const x = 50 + col * (boxWidth + boxGap);
+          const y = imageY + row * (boxHeight + boxGap);
+          drawBox(imgPath, x, y, boxWidth, boxHeight, idx);
+        });
+
+        doc.x = 50;
+        doc.y = imageY + rows * boxHeight + (rows - 1) * boxGap + spacingBeforeNote;
+      } else {
+        doc.x = 50;
+        doc.y = imageY + spacingBeforeNote;
+      }
+
       doc.font('Helvetica-Bold')
          .fillColor('#0066cc')
-         .text('All activities are conducted under the supervision of trained staff to ensure the safety and enjoyment of all participants.', { align: 'center', width: 495 });
-      
+         .fontSize(8.5)
+         .text('All activities are conducted under the supervision of trained staff to ensure the safety and enjoyment of all participants.', 50, doc.y, { align: 'center', width: pageWidth });
+
+      drawFooter();
+
       doc.end();
 
       stream.on('finish', () => resolve());

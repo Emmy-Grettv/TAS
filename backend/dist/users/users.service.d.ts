@@ -16,4 +16,5 @@ export declare class UsersService {
         message: string;
     }>;
     count(): Promise<number>;
+    updatePassword(id: string, hashedPassword: string): Promise<void>;
 }

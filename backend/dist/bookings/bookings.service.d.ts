@@ -30,5 +30,7 @@ export declare class BookingsService {
     reject(id: string, dto: RejectBookingDto): Promise<{
         message: string;
     }>;
+    private getAssetPath;
+    private getActivityImagePaths;
     private generateReservationPdf;
 }

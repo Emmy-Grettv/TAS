@@ -10,6 +10,7 @@ import {
   ShieldCheck,
   CalendarCheck,
   FileText,
+  UserCircle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/store/authStore";
@@ -54,6 +55,12 @@ export function Sidebar() {
       href: "/users",
       icon: ShieldCheck,
       adminOnly: true,
+    },
+    {
+      title: "Profile",
+      href: "/profile",
+      icon: UserCircle,
+      adminOnly: false,
     },
   ];
 

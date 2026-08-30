@@ -168,6 +168,21 @@ Tegano Recreation Center`;
     return { message: 'Quotation sent successfully' };
   }
 
+  private getAssetPath(filename: string): string | null {
+    const candidates = [
+      path.join(__dirname, '..', 'assets', filename),
+      path.join(__dirname, '..', '..', 'assets', filename),
+      path.join(process.cwd(), 'assets', filename),
+      path.join(process.cwd(), 'src', 'assets', filename),
+      path.join(process.cwd(), 'dist', 'assets', filename),
+      path.join(process.cwd(), '..', 'frontend', 'public', 'images', filename),
+    ];
+    for (const p of candidates) {
+      if (fs.existsSync(p)) return p;
+    }
+    return null;
+  }
+
   private async generateQuotationPdf(quotation: Quotation, filePath: string): Promise<void> {
     return new Promise((resolve, reject) => {
       const doc = new PDFDocument({ margin: 50, size: 'A4' });
@@ -176,11 +191,9 @@ Tegano Recreation Center`;
       doc.pipe(stream);
 
       // --- Page 1: Letter ---
-      const logoPath = fs.existsSync(path.join(__dirname, '..', '..', 'assets', 'logo.png'))
-        ? path.join(__dirname, '..', '..', 'assets', 'logo.png')
-        : path.join(__dirname, '..', 'assets', 'logo.png');
+      const logoPath = this.getAssetPath('logo.png');
 
-      if (fs.existsSync(logoPath)) {
+      if (logoPath) {
         doc.image(logoPath, 50, 45, { width: 120 });
       }
 
@@ -284,7 +297,7 @@ Tegano Recreation Center`;
       // --- Page 2: Annexure 1 ---
       doc.addPage();
 
-      if (fs.existsSync(logoPath)) {
+      if (logoPath) {
         doc.image(logoPath, 50, 45, { width: 120 });
       }
       
@@ -329,17 +342,37 @@ Tegano Recreation Center`;
       doc.moveDown(0.5);
       
       const imgY = doc.y;
+      const boxWidth = 230;
+      const boxHeight = 120;
 
-      doc.rect(50, imgY, 230, 120)
-         .fillAndStroke('#f8fafc', '#cbd5e1');
-      doc.fillColor('#475569')
-         .font('Helvetica-Bold')
-         .text('[ Place Image here ]', 50, imgY + 50, { width: 230, align: 'center' });
+      const act1Path = this.getAssetPath('activity1.jpg') || this.getAssetPath('IMG_4256.JPG') || this.getAssetPath('IMG-20260714-WA0005.jpg') || this.getAssetPath('flyer.jpg');
+      const act2Path = this.getAssetPath('activity2.jpg') || this.getAssetPath('IMG_4257.JPG') || this.getAssetPath('IMG-20260714-WA0006.jpg') || this.getAssetPath('flyer.jpg');
 
-      doc.rect(315, imgY, 230, 120)
-         .fillAndStroke('#f8fafc', '#cbd5e1');
-      doc.fillColor('#475569')
-         .text('[ Place Image here ]', 315, imgY + 50, { width: 230, align: 'center' });
+      // Left activity image
+      if (act1Path) {
+        try {
+          doc.save();
+          doc.rect(50, imgY, boxWidth, boxHeight).clip();
+          doc.image(act1Path, 50, imgY, { cover: [boxWidth, boxHeight], align: 'center', valign: 'center' });
+          doc.restore();
+          doc.rect(50, imgY, boxWidth, boxHeight).lineWidth(1.5).stroke('#0066cc');
+        } catch (e) {
+          this.logger.warn(`Failed to render activity1 image: ${e.message}`);
+        }
+      }
+
+      // Right activity image
+      if (act2Path) {
+        try {
+          doc.save();
+          doc.rect(315, imgY, boxWidth, boxHeight).clip();
+          doc.image(act2Path, 315, imgY, { cover: [boxWidth, boxHeight], align: 'center', valign: 'center' });
+          doc.restore();
+          doc.rect(315, imgY, boxWidth, boxHeight).lineWidth(1.5).stroke('#0066cc');
+        } catch (e) {
+          this.logger.warn(`Failed to render activity2 image: ${e.message}`);
+        }
+      }
 
       doc.x = 50;
       doc.y = imgY + 135;

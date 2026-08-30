@@ -166,15 +166,7 @@ export function BookingTable() {
               >
                 <Eye className="h-4 w-4 text-blue-600" />
               </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-8 w-8 p-0 hover:bg-green-50"
-                onClick={() => router.push(`/bookings/${booking.id}/edit`)}
-                title="Edit Booking"
-              >
-                <Edit className="h-4 w-4 text-green-600" />
-              </Button>
+
               <Button
                 variant="ghost"
                 size="sm"

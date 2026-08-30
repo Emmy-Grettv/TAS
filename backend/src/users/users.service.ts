@@ -70,4 +70,10 @@ export class UsersService {
   async count(): Promise<number> {
     return this.usersRepo.count();
   }
+
+  async updatePassword(id: string, hashedPassword: string): Promise<void> {
+    const user = await this.findOne(id);
+    user.password = hashedPassword;
+    await this.usersRepo.save(user);
+  }
 }

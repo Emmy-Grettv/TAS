@@ -3,7 +3,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { ChevronRight, CheckCircle, Loader2, AlertCircle, Shield, Phone, RefreshCw, Calendar, ArrowLeft, ArrowRight } from 'lucide-react';
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:3001';
 
 const steps = ['Organization', 'Contact & Visit', 'Group Details', 'Review & Submit'];
 

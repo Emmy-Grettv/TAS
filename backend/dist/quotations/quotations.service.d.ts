@@ -24,5 +24,6 @@ export declare class QuotationsService {
     sendQuotation(id: string): Promise<{
         message: string;
     }>;
+    private getAssetPath;
     private generateQuotationPdf;
 }

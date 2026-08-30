@@ -14,3 +14,7 @@ export declare class UpdateUserDto {
 export declare class ResetPasswordDto {
     newPassword: string;
 }
+export declare class ChangePasswordDto {
+    currentPassword: string;
+    newPassword: string;
+}

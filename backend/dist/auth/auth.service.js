@@ -84,6 +84,16 @@ let AuthService = class AuthService {
             role: user.role,
         };
     }
+    async changePassword(userId, dto) {
+        const user = await this.usersService.findOne(userId);
+        const isValidPassword = await bcrypt.compare(dto.currentPassword, user.password);
+        if (!isValidPassword) {
+            throw new common_1.UnauthorizedException('Current password is incorrect');
+        }
+        user.password = await bcrypt.hash(dto.newPassword, 10);
+        await this.usersService.updatePassword(userId, user.password);
+        return { message: 'Password updated successfully' };
+    }
 };
 exports.AuthService = AuthService;
 exports.AuthService = AuthService = __decorate([

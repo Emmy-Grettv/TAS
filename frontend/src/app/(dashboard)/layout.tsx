@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useAuthStore } from "@/store/authStore";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { TopBar } from "@/components/layout/TopBar";
@@ -12,18 +12,29 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const router = useRouter();
+  const pathname = usePathname();
   const token = useAuthStore((state) => state.token);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
-    if (!token) {
-      router.push("/login");
-    }
-  }, [token, router]);
+  }, []);
 
-  if (!mounted || !token) {
-    return null; // or a loading spinner
+  useEffect(() => {
+    // Only redirect to login if there's no token and we're mounted
+    if (mounted && !token) {
+      router.replace("/login");
+    }
+  }, [token, mounted, router]);
+
+  // Show loading or nothing while checking auth
+  if (!mounted) {
+    return null;
+  }
+
+  // If no token, show nothing (will redirect)
+  if (!token) {
+    return null;
   }
 
   return (

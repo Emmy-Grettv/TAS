@@ -105,6 +105,11 @@ let UsersService = class UsersService {
     async count() {
         return this.usersRepo.count();
     }
+    async updatePassword(id, hashedPassword) {
+        const user = await this.findOne(id);
+        user.password = hashedPassword;
+        await this.usersRepo.save(user);
+    }
 };
 exports.UsersService = UsersService;
 exports.UsersService = UsersService = __decorate([

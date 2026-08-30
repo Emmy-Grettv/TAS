@@ -12,11 +12,11 @@ async function bootstrap() {
         transform: true,
     }));
     app.enableCors({
-        origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+        origin: true,
         credentials: true,
     });
     const port = process.env.PORT || 3001;
-    await app.listen(port);
+    await app.listen(port, '0.0.0.0');
     console.log(`🚀 TAS Backend running on http://localhost:${port}/api`);
 }
 bootstrap();
