@@ -25,7 +25,17 @@ let WhatsappService = WhatsappService_1 = class WhatsappService {
         const accountSid = this.configService.get('TWILIO_ACCOUNT_SID', '');
         const authToken = this.configService.get('TWILIO_AUTH_TOKEN', '');
         this.twilioNumber = this.configService.get('TWILIO_WHATSAPP_NUMBER', '');
-        this.publicAppUrl = this.configService.get('PUBLIC_APP_URL', 'http://localhost:3001');
+        let rawPublicUrl = this.configService.get('PUBLIC_APP_URL', '');
+        if (!rawPublicUrl && process.env.RAILWAY_PUBLIC_DOMAIN) {
+            rawPublicUrl = `https://${process.env.RAILWAY_PUBLIC_DOMAIN}`;
+        }
+        if (!rawPublicUrl) {
+            rawPublicUrl = 'http://localhost:3001';
+        }
+        if (!rawPublicUrl.startsWith('http://') && !rawPublicUrl.startsWith('https://')) {
+            rawPublicUrl = `https://${rawPublicUrl}`;
+        }
+        this.publicAppUrl = rawPublicUrl.replace(/\/+$/, '');
         if (accountSid && authToken) {
             this.twilioClient = new twilio_1.Twilio(accountSid, authToken);
         }

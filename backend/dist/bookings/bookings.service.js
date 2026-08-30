@@ -143,11 +143,24 @@ let BookingsService = BookingsService_1 = class BookingsService {
             throw new Error('Booking is already approved');
         }
         const pdfFileName = `Reservation_${booking.id.split('-')[0]}.pdf`;
-        const pdfPath = path.join(__dirname, '..', '..', 'uploads', 'bookings', pdfFileName);
+        const pdfDir = path.join(__dirname, '..', '..', 'uploads', 'bookings');
+        if (!fs.existsSync(pdfDir)) {
+            fs.mkdirSync(pdfDir, { recursive: true });
+        }
+        const pdfPath = path.join(pdfDir, pdfFileName);
         await this.generateReservationPdf(booking, pdfPath);
         booking.status = booking_entity_1.BookingStatus.APPROVED;
         await this.bookingsRepo.save(booking);
-        const publicUrl = this.configService.get('PUBLIC_APP_URL', 'http://localhost:3001');
+        let publicUrl = this.configService.get('PUBLIC_APP_URL', '');
+        if (!publicUrl && process.env.RAILWAY_PUBLIC_DOMAIN) {
+            publicUrl = `https://${process.env.RAILWAY_PUBLIC_DOMAIN}`;
+        }
+        if (!publicUrl)
+            publicUrl = 'http://localhost:3001';
+        if (!publicUrl.startsWith('http://') && !publicUrl.startsWith('https://')) {
+            publicUrl = `https://${publicUrl}`;
+        }
+        publicUrl = publicUrl.replace(/\/+$/, '');
         const pdfUrl = `${publicUrl}/uploads/bookings/${pdfFileName}`;
         const message = `Good day ${booking.contactPerson},
 

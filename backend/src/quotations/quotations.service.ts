@@ -88,7 +88,16 @@ export class QuotationsService {
       await this.generateQuotationPdf(saved, pdfPath);
       saved.documentPath = pdfFileName;
 
-      const publicUrl = this.configService.get<string>('PUBLIC_APP_URL', 'http://localhost:3001');
+      let publicUrl = this.configService.get<string>('PUBLIC_APP_URL', '');
+      if (!publicUrl && process.env.RAILWAY_PUBLIC_DOMAIN) {
+        publicUrl = `https://${process.env.RAILWAY_PUBLIC_DOMAIN}`;
+      }
+      if (!publicUrl) publicUrl = 'http://localhost:3001';
+      if (!publicUrl.startsWith('http://') && !publicUrl.startsWith('https://')) {
+        publicUrl = `https://${publicUrl}`;
+      }
+      publicUrl = publicUrl.replace(/\/+$/, '');
+
       const docUrl = `${publicUrl}/uploads/quotations/${pdfFileName}`;
 
       const message = `Good day ${saved.contactPerson},
@@ -142,7 +151,16 @@ Tegano Recreation Center`;
     
     quotation.documentPath = pdfFileName;
 
-    const publicUrl = this.configService.get<string>('PUBLIC_APP_URL', 'http://localhost:3001');
+    let publicUrl = this.configService.get<string>('PUBLIC_APP_URL', '');
+    if (!publicUrl && process.env.RAILWAY_PUBLIC_DOMAIN) {
+      publicUrl = `https://${process.env.RAILWAY_PUBLIC_DOMAIN}`;
+    }
+    if (!publicUrl) publicUrl = 'http://localhost:3001';
+    if (!publicUrl.startsWith('http://') && !publicUrl.startsWith('https://')) {
+      publicUrl = `https://${publicUrl}`;
+    }
+    publicUrl = publicUrl.replace(/\/+$/, '');
+
     const docUrl = `${publicUrl}/uploads/quotations/${pdfFileName}`;
 
     const message = `Good day ${quotation.contactPerson},
