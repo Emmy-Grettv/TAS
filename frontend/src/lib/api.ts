@@ -1,8 +1,13 @@
 import axios from 'axios';
 import { useAuthStore } from '../store/authStore';
 
+const rawUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
+const baseURL = (rawUrl.startsWith('http://') || rawUrl.startsWith('https://'))
+  ? rawUrl
+  : `https://${rawUrl}`;
+
 export const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api',
+  baseURL,
 });
 
 api.interceptors.request.use((config) => {

@@ -21,9 +21,11 @@ export type Quotation = {
   };
 };
 
-// We don't have a configured env file, but we can assume the API is at NEXT_PUBLIC_API_URL
-const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api";
-const uploadBaseUrl = apiUrl.replace("/api", "") + "/uploads/quotations";
+const rawApiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api";
+const apiUrl = (rawApiUrl.startsWith('http://') || rawApiUrl.startsWith('https://'))
+  ? rawApiUrl
+  : `https://${rawApiUrl}`;
+const uploadBaseUrl = apiUrl.replace(/\/api\/?$/, '') + "/uploads/quotations";
 
 export const columns: ColumnDef<Quotation>[] = [
   {
