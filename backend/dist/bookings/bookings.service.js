@@ -354,27 +354,16 @@ Tegano Recreation Center`;
             doc.moveDown(0.4);
             doc.text('Yours sincerely,');
             const signaturePath = this.getAssetPath('signature.png') || this.getAssetPath('signature.jpg');
-            const stampPath = this.getAssetPath('stamp.png') || this.getAssetPath('stamp.jpg');
-            if (signaturePath || stampPath) {
+            if (signaturePath) {
                 const graphicY = doc.y + 2;
-                if (signaturePath) {
-                    try {
-                        doc.image(signaturePath, 50, graphicY, { width: 110 });
-                    }
-                    catch (e) {
-                        this.logger.warn(`Failed to render signature image: ${e.message}`);
-                    }
+                try {
+                    doc.image(signaturePath, 50, graphicY, { width: 160 });
                 }
-                if (stampPath) {
-                    try {
-                        doc.image(stampPath, 115, graphicY - 5, { width: 85 });
-                    }
-                    catch (e) {
-                        this.logger.warn(`Failed to render stamp image: ${e.message}`);
-                    }
+                catch (e) {
+                    this.logger.warn(`Failed to render signature image: ${e.message}`);
                 }
                 doc.x = 50;
-                doc.y = graphicY + 45;
+                doc.y = graphicY + 70;
             }
             else {
                 doc.moveDown(0.4);

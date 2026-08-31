@@ -295,9 +295,23 @@ Tegano Recreation Center`;
             doc.moveDown(0.8);
             doc.font('Helvetica').text('We look forward to welcoming your students for an enjoyable and memorable day at ', { continued: true });
             doc.font('Helvetica-Bold').text('Tegano Recreation Center.');
-            doc.moveDown(1);
+            doc.moveDown(0.5);
             doc.font('Helvetica').text('Yours sincerely,');
-            doc.moveDown(0.6);
+            const signaturePath = this.getAssetPath('signature.png') || this.getAssetPath('signature.jpg');
+            if (signaturePath) {
+                const graphicY = doc.y + 2;
+                try {
+                    doc.image(signaturePath, 50, graphicY, { width: 150 });
+                }
+                catch (e) {
+                    this.logger.warn(`Failed to render signature image: ${e.message}`);
+                }
+                doc.x = 50;
+                doc.y = graphicY + 65;
+            }
+            else {
+                doc.moveDown(0.6);
+            }
             doc.font('Helvetica-Bold').text('Emmerson Chitawa');
             doc.font('Helvetica').text('Facility Supervisor');
             const pageHeight = doc.page.height;
