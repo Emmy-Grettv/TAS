@@ -255,7 +255,10 @@ Tegano Recreation Center`;
 
   private async generateReservationPdf(booking: Booking, filePath: string): Promise<void> {
     return new Promise((resolve, reject) => {
-      const doc = new PDFDocument({ margin: 50, size: 'A4' });
+      const doc = new PDFDocument({
+        size: 'A4',
+        margins: { top: 40, bottom: 0, left: 50, right: 50 },
+      });
       const stream = fs.createWriteStream(filePath);
 
       doc.pipe(stream);
@@ -393,8 +396,11 @@ Tegano Recreation Center`;
 
       drawFooter();
 
-      // --- Page 2: Annexure 1 (exactly one page — no overflow page 3) ---
-      doc.addPage();
+      // --- Page 2: Annexure 1 (strictly exactly 2 pages) ---
+      doc.addPage({
+        size: 'A4',
+        margins: { top: 40, bottom: 0, left: 50, right: 50 },
+      });
       drawHeader();
 
       doc.font('Helvetica-Bold').fontSize(10).text('ANNEXURE 1', 50, toY, { align: 'left' });

@@ -266,7 +266,10 @@ Tegano Recreation Center`;
     }
     async generateReservationPdf(booking, filePath) {
         return new Promise((resolve, reject) => {
-            const doc = new pdfkit_1.default({ margin: 50, size: 'A4' });
+            const doc = new pdfkit_1.default({
+                size: 'A4',
+                margins: { top: 40, bottom: 0, left: 50, right: 50 },
+            });
             const stream = fs.createWriteStream(filePath);
             doc.pipe(stream);
             const pageWidth = 495;
@@ -372,7 +375,10 @@ Tegano Recreation Center`;
             doc.moveDown(0.2);
             doc.font('Helvetica').fontSize(8.5).text('Facility Supervisor');
             drawFooter();
-            doc.addPage();
+            doc.addPage({
+                size: 'A4',
+                margins: { top: 40, bottom: 0, left: 50, right: 50 },
+            });
             drawHeader();
             doc.font('Helvetica-Bold').fontSize(10).text('ANNEXURE 1', 50, toY, { align: 'left' });
             doc.fontSize(9.5).text('School Trip Activities – Tegano Recreation Center');

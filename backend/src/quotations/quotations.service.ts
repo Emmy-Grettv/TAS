@@ -203,7 +203,10 @@ Tegano Recreation Center`;
 
   private async generateQuotationPdf(quotation: Quotation, filePath: string): Promise<void> {
     return new Promise((resolve, reject) => {
-      const doc = new PDFDocument({ margin: 50, size: 'A4' });
+      const doc = new PDFDocument({
+        size: 'A4',
+        margins: { top: 40, bottom: 0, left: 50, right: 50 },
+      });
       const stream = fs.createWriteStream(filePath);
       
       doc.pipe(stream);
@@ -327,7 +330,10 @@ Tegano Recreation Center`;
       doc.font('Helvetica').text('DIRECT ALL INQUIRES TO: +263 781499656 / 784700878', 50, pageHeight - 50, { align: 'center', width: 495 });
       
       // --- Page 2: Annexure 1 ---
-      doc.addPage();
+      doc.addPage({
+        size: 'A4',
+        margins: { top: 40, bottom: 0, left: 50, right: 50 },
+      });
 
       if (logoPath) {
         doc.image(logoPath, 50, 45, { width: 120 });

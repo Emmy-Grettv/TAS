@@ -225,7 +225,10 @@ Tegano Recreation Center`;
     }
     async generateQuotationPdf(quotation, filePath) {
         return new Promise((resolve, reject) => {
-            const doc = new pdfkit_1.default({ margin: 50, size: 'A4' });
+            const doc = new pdfkit_1.default({
+                size: 'A4',
+                margins: { top: 40, bottom: 0, left: 50, right: 50 },
+            });
             const stream = fs.createWriteStream(filePath);
             doc.pipe(stream);
             const logoPath = this.getAssetPath('logo.png');
@@ -317,7 +320,10 @@ Tegano Recreation Center`;
             const pageHeight = doc.page.height;
             doc.font('Helvetica-Bold').fontSize(8.5).text('"Follow us: Facebook | Instagram | TikTok"', 50, pageHeight - 65, { align: 'center', width: 495 });
             doc.font('Helvetica').text('DIRECT ALL INQUIRES TO: +263 781499656 / 784700878', 50, pageHeight - 50, { align: 'center', width: 495 });
-            doc.addPage();
+            doc.addPage({
+                size: 'A4',
+                margins: { top: 40, bottom: 0, left: 50, right: 50 },
+            });
             if (logoPath) {
                 doc.image(logoPath, 50, 45, { width: 120 });
             }
