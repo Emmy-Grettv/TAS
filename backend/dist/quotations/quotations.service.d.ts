@@ -25,5 +25,6 @@ export declare class QuotationsService {
         message: string;
     }>;
     private getAssetPath;
+    private getActivityImagePaths;
     private generateQuotationPdf;
 }
