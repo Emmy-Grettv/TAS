@@ -313,9 +313,11 @@ Tegano Recreation Center`;
            .text('Tel: +263 781499656 / 784700878', { align: 'right', width: 240 })
            .text('Email: teganoinvestmentpvtltd@gmail.com', { align: 'right', width: 240 });
 
-        // Divider rule under the letterhead — black, and below the whole logo
+        // Double divider rule under the letterhead (thin top line + thick bottom line)
         doc.moveTo(50, dividerY).lineTo(50 + pageWidth, dividerY)
-           .lineWidth(1).strokeColor('black').stroke();
+           .lineWidth(0.75).strokeColor('black').stroke();
+        doc.moveTo(50, dividerY + 3).lineTo(50 + pageWidth, dividerY + 3)
+           .lineWidth(2.5).strokeColor('black').stroke();
 
         doc.fillColor('black').fontSize(9.5);
       };
@@ -411,22 +413,23 @@ Tegano Recreation Center`;
 
       doc.fontSize(8);
       const activities = [
-        '1. Electric Go-Kart Racing – Students drive mini electric go-karts on a safe track.',
-        '2. Mini Electric Car & Motorcycle Rides – Children ride battery-powered cars in a supervised area.',
-        '3. Carousel Rotating Ride – A gentle rotating ride with colorful vehicles.',
-        '4. Inflatable Bouncy Castles – Large inflatable castles where children can jump safely.',
-        '5. Inflatable Adventure Play Structures – Inflatable play zones with climbing, sliding.',
-        '6. Water Splash Pool Play – A shallow splash pool where children can enjoy safe water play.',
-        '7. Inflatable Water Slides – Inflatable slides allowing children to slide into the splash pool.',
-        '8. Inflatable Water Climbing Wall – A soft inflatable climbing wall.',
-        '9. Trampoline Jumping – A trampoline area where children can jump safely.',
-        '10. Interactive Driving Games – Ride-on vehicles with steering.',
-        '11. Outdoor Free Play Area – A spacious outdoor environment for relaxation.',
-        '12. Swings and Balancing – Playground swings and balancing equipment.'
+        { name: '1. Electric Go-Kart Racing', desc: 'Students drive mini electric go-karts on a safe track.' },
+        { name: '2. Mini Electric Car & Motorcycle Rides', desc: 'Children ride battery-powered cars in a supervised area.' },
+        { name: '3. Carousel Rotating Ride', desc: 'A gentle rotating ride with colorful vehicles.' },
+        { name: '4. Inflatable Bouncy Castles', desc: 'Large inflatable castles where children can jump safely.' },
+        { name: '5. Inflatable Adventure Play Structures', desc: 'Inflatable play zones with climbing, sliding.' },
+        { name: '6. Water Splash Pool Play', desc: 'A shallow splash pool where children can enjoy safe water play.' },
+        { name: '7. Inflatable Water Slides', desc: 'Inflatable slides allowing children to slide into the splash pool.' },
+        { name: '8. Inflatable Water Climbing Wall', desc: 'A soft inflatable climbing wall.' },
+        { name: '9. Trampoline Jumping', desc: 'A trampoline area where children can jump safely.' },
+        { name: '10. Interactive Driving Games', desc: 'Ride-on vehicles with steering.' },
+        { name: '11. Outdoor Free Play Area', desc: 'A spacious outdoor environment for relaxation.' },
+        { name: '12. Swings and Balancing', desc: 'Playground swings and balancing equipment.' }
       ];
       let currentY = doc.y;
       activities.forEach(item => {
-        doc.text(item, 50, currentY, { width: pageWidth });
+        doc.font('Helvetica-Bold').fillColor('black').text(item.name, 50, currentY, { continued: true });
+        doc.font('Helvetica').fillColor('black').text(` – ${item.desc}`, { width: pageWidth });
         currentY = doc.y + 0.5;
       });
       doc.y = currentY;
