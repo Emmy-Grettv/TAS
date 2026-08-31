@@ -136,6 +136,18 @@ Tegano Recreation Center`;
     return { message: 'Quotation deleted successfully' };
   }
 
+  async getQuotationPdfPath(id: string): Promise<string> {
+    const quotation = await this.findOne(id);
+    const pdfFileName = `Quotation_${quotation.id.split('-')[0]}.pdf`;
+    const pdfDir = path.join(__dirname, '..', '..', 'uploads', 'quotations');
+    if (!fs.existsSync(pdfDir)) {
+      fs.mkdirSync(pdfDir, { recursive: true });
+    }
+    const pdfPath = path.join(pdfDir, pdfFileName);
+    await this.generateQuotationPdf(quotation, pdfPath);
+    return pdfPath;
+  }
+
   async sendQuotation(id: string): Promise<{ message: string }> {
     const quotation = await this.findOne(id);
     

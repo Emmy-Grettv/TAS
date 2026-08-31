@@ -12,7 +12,9 @@ import {
   UseInterceptors,
   UploadedFile,
   BadRequestException,
+  Res,
 } from '@nestjs/common';
+import * as fs from 'fs';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
@@ -35,6 +37,14 @@ const storage = diskStorage({
 @Controller('quotations')
 export class QuotationsController {
   constructor(private readonly quotationsService: QuotationsService) {}
+
+  @Get(':id/pdf')
+  async previewPdf(@Param('id') id: string, @Res() res: any) {
+    const filePath = await this.quotationsService.getQuotationPdfPath(id);
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', 'inline; filename="Quotation.pdf"');
+    fs.createReadStream(filePath).pipe(res);
+  }
 
   @Get('stats')
   getStats() {

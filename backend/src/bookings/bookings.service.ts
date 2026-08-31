@@ -153,6 +153,18 @@ Tegano Recreation Center`;
     return { message: 'Booking approved successfully', pdfUrl };
   }
 
+  async getBookingPdfPath(id: string): Promise<string> {
+    const booking = await this.findOne(id);
+    const pdfFileName = `Reservation_${booking.id.split('-')[0]}.pdf`;
+    const pdfDir = path.join(__dirname, '..', '..', 'uploads', 'bookings');
+    if (!fs.existsSync(pdfDir)) {
+      fs.mkdirSync(pdfDir, { recursive: true });
+    }
+    const pdfPath = path.join(pdfDir, pdfFileName);
+    await this.generateReservationPdf(booking, pdfPath);
+    return pdfPath;
+  }
+
   async reject(id: string, dto: RejectBookingDto): Promise<{ message: string }> {
     const booking = await this.findOne(id);
 
