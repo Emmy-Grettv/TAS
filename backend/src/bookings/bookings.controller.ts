@@ -11,7 +11,7 @@ import {
   Request,
   Res,
 } from '@nestjs/common';
-import * as fs from 'fs';
+import { Response } from 'express';
 import { BookingsService } from './bookings.service';
 import { CreateBookingDto, UpdateBookingDto, BookingQueryDto, RejectBookingDto } from './dto/booking.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -23,18 +23,16 @@ import { UserRole } from '../users/entities/user.entity';
 export class BookingsController {
   constructor(private readonly bookingsService: BookingsService) {}
 
-  // ─── Public endpoint (no auth) for the public-facing website ───
+  // ─── Public endpoints (no auth) ───
+  @Get('public/preview')
+  async previewPdf(@Res() res: any) {
+    const filePath = await this.bookingsService.generateSamplePdf();
+    return res.sendFile(filePath);
+  }
+
   @Post('public')
   createPublic(@Body() dto: CreateBookingDto) {
     return this.bookingsService.create(dto, null);
-  }
-
-  @Get(':id/pdf')
-  async previewPdf(@Param('id') id: string, @Res() res: any) {
-    const filePath = await this.bookingsService.getBookingPdfPath(id);
-    res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', 'inline; filename="Reservation.pdf"');
-    fs.createReadStream(filePath).pipe(res);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)

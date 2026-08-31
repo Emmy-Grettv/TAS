@@ -136,18 +136,6 @@ Tegano Recreation Center`;
     return { message: 'Quotation deleted successfully' };
   }
 
-  async getQuotationPdfPath(id: string): Promise<string> {
-    const quotation = await this.findOne(id);
-    const pdfFileName = `Quotation_${quotation.id.split('-')[0]}.pdf`;
-    const pdfDir = path.join(__dirname, '..', '..', 'uploads', 'quotations');
-    if (!fs.existsSync(pdfDir)) {
-      fs.mkdirSync(pdfDir, { recursive: true });
-    }
-    const pdfPath = path.join(pdfDir, pdfFileName);
-    await this.generateQuotationPdf(quotation, pdfPath);
-    return pdfPath;
-  }
-
   async sendQuotation(id: string): Promise<{ message: string }> {
     const quotation = await this.findOne(id);
     
@@ -284,9 +272,9 @@ Tegano Recreation Center`;
       };
 
       const logoPath = this.getAssetPath('logo.png');
-      const logoTop = 45;
-      const logoWidth = 120;
-      let logoDisplayHeight = 90;
+      const logoTop = 40;
+      const logoWidth = 115;
+      let logoDisplayHeight = 75;
       if (logoPath) {
         try {
           const logoImage = (doc as any).openImage(logoPath);
@@ -295,27 +283,27 @@ Tegano Recreation Center`;
           this.logger.warn(`Failed to read logo dimensions: ${e.message}`);
         }
       }
-      const companyBlockBottom = 95;
-      const dividerY = Math.max(logoTop + logoDisplayHeight, companyBlockBottom) + 10;
-      const reservationDateY = dividerY + 14;
-      const toY = reservationDateY + 20;
+      const companyBlockBottom = 88;
+      const dividerY = Math.max(logoTop + logoDisplayHeight, companyBlockBottom) + 2;
+      const reservationDateY = dividerY + 12;
+      const toY = reservationDateY + 18;
 
       const drawHeader = () => {
         if (logoPath) {
           doc.image(logoPath, 50, logoTop, { width: logoWidth });
         }
 
-        doc.font('Helvetica-Bold').fontSize(10).fillColor('#0066cc')
-           .text('TEGANO INVESTMENT (PVT) LTD', 300, 50, { align: 'right', width: 240 })
-           .font('Helvetica')
-           .text('26 Princess Drive, Newlands, Harare', { align: 'right', width: 240 })
-           .text('Tel: +263 781499656 / 784700878', { align: 'right', width: 240 })
-           .text('Email: teganoinvestmentpvtltd@gmail.com', { align: 'right', width: 240 });
+        doc.font('Courier-Bold').fontSize(10.5).fillColor('#0066cc')
+           .text('TEGANO INVESTMENT (PVT) LTD', 250, 42, { align: 'right', width: 295 })
+           .font('Courier-Bold').fontSize(9)
+           .text('26 Princess Drive, Newlands, Harare', { align: 'right', width: 295 })
+           .text('Tel: +263 781499656 / 784700878', { align: 'right', width: 295 })
+           .text('Email: teganoinvestmentpvtltd@gmail.com', { align: 'right', width: 295 });
 
         // Double divider rule under the letterhead (thin top line + thick bottom line)
         doc.moveTo(50, dividerY).lineTo(50 + pageWidth, dividerY)
            .lineWidth(0.75).strokeColor('black').stroke();
-        doc.moveTo(50, dividerY + 3).lineTo(50 + pageWidth, dividerY + 3)
+        doc.moveTo(50, dividerY + 2.5).lineTo(50 + pageWidth, dividerY + 2.5)
            .lineWidth(2.5).strokeColor('black').stroke();
 
         doc.fillColor('black').fontSize(9.5);
@@ -336,7 +324,7 @@ Tegano Recreation Center`;
       doc.text(quotation.schoolName);
       doc.font('Helvetica').text(quotation.districtArea);
 
-      doc.font('Helvetica-Bold').text(`QUOTATION Nº: ${quotation.id.split('-')[0].toUpperCase()}`, 300, titleY + 28, { align: 'right', width: 245 });
+      doc.font('Helvetica-Bold').text(`QUOTATION Nº: ${(quotation.id || 'QUOT-123').split('-')[0].toUpperCase()}`, 300, titleY + 28, { align: 'right', width: 245 });
       doc.text(`DATE: ${today}`, { align: 'right', width: 245 });
 
       doc.y = Math.max(doc.y, titleY + 75);
@@ -401,24 +389,26 @@ Tegano Recreation Center`;
       doc.font('Helvetica-Bold').text('Tegano Recreation Center.');
 
       doc.moveDown(0.4);
-      doc.font('Helvetica').text('Yours sincerely,');
+      doc.font('Helvetica').fontSize(9.5).text('Yours sincerely,');
+
+      doc.moveDown(0.3);
+      doc.font('Helvetica-Bold').fontSize(10).text('Emmerson Chitawa');
 
       const signaturePath = this.getAssetPath('signature.png') || this.getAssetPath('signature.jpg');
       if (signaturePath) {
         const graphicY = doc.y + 2;
         try {
-          doc.image(signaturePath, 50, graphicY, { width: 150 });
+          doc.image(signaturePath, 50, graphicY, { width: 140 });
         } catch (e) {
           this.logger.warn(`Failed to render signature image: ${e.message}`);
         }
         doc.x = 50;
-        doc.y = graphicY + 65;
+        doc.y = graphicY + 60;
       } else {
-        doc.moveDown(0.6);
+        doc.moveDown(0.3);
       }
 
-      doc.font('Helvetica-Bold').text('Emmerson Chitawa');
-      doc.font('Helvetica').text('Facility Supervisor');
+      doc.font('Helvetica').fontSize(9).text('Facility Supervisor');
 
       drawFooter();
 
@@ -544,5 +534,26 @@ Tegano Recreation Center`;
       stream.on('finish', () => resolve());
       stream.on('error', (err) => reject(err));
     });
+  }
+
+  async generateSamplePdf(outputPath?: string): Promise<string> {
+    const targetDir = path.join(process.cwd(), 'uploads', 'quotations');
+    if (!fs.existsSync(targetDir)) {
+      fs.mkdirSync(targetDir, { recursive: true });
+    }
+    const targetPath = outputPath || path.join(targetDir, 'sample-quotation.pdf');
+    const sampleQuotation: Partial<Quotation> = {
+      id: 'quot-12345',
+      schoolName: 'Heritage School Harare',
+      districtArea: 'Borrowdale, Harare',
+      notes: '$50 Deposit on confirmation and balance on arrival date.',
+      items: [
+        { description: 'Student Entrance & Full Activity Pass', quantity: 100, unitCost: 10 },
+        { description: 'Accompanying Teacher Entry', quantity: 6, unitCost: 0 },
+        { description: 'Buffet Student Lunch & Drinks', quantity: 100, unitCost: 5 },
+      ],
+    };
+    await this.generateQuotationPdf(sampleQuotation as Quotation, targetPath);
+    return targetPath;
   }
 }

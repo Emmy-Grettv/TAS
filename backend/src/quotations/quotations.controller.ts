@@ -14,7 +14,7 @@ import {
   BadRequestException,
   Res,
 } from '@nestjs/common';
-import * as fs from 'fs';
+import { Response } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
@@ -33,24 +33,23 @@ const storage = diskStorage({
   },
 });
 
-@UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('quotations')
 export class QuotationsController {
   constructor(private readonly quotationsService: QuotationsService) {}
 
-  @Get(':id/pdf')
-  async previewPdf(@Param('id') id: string, @Res() res: any) {
-    const filePath = await this.quotationsService.getQuotationPdfPath(id);
-    res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', 'inline; filename="Quotation.pdf"');
-    fs.createReadStream(filePath).pipe(res);
+  @Get('public/preview')
+  async previewPdf(@Res() res: any) {
+    const filePath = await this.quotationsService.generateSamplePdf();
+    return res.sendFile(filePath);
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Get('stats')
   getStats() {
     return this.quotationsService.getStats();
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Get()
   findAll(@Query() query: QuotationQueryDto, @Request() req) {
     if (req.user.role !== UserRole.ADMIN) {
@@ -59,16 +58,19 @@ export class QuotationsController {
     return this.quotationsService.findAll(query);
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.quotationsService.findOne(id);
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Post()
   create(@Body() dto: CreateQuotationDto, @Request() req) {
     return this.quotationsService.create(dto, req.user.id);
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Patch(':id')
   @UseInterceptors(
     FileInterceptor('document', {
@@ -89,11 +91,13 @@ export class QuotationsController {
     return this.quotationsService.update(id, dto, file?.filename);
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.quotationsService.remove(id);
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
   @Post(':id/send')
   sendQuotation(@Param('id') id: string) {

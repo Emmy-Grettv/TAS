@@ -153,18 +153,6 @@ Tegano Recreation Center`;
     return { message: 'Booking approved successfully', pdfUrl };
   }
 
-  async getBookingPdfPath(id: string): Promise<string> {
-    const booking = await this.findOne(id);
-    const pdfFileName = `Reservation_${booking.id.split('-')[0]}.pdf`;
-    const pdfDir = path.join(__dirname, '..', '..', 'uploads', 'bookings');
-    if (!fs.existsSync(pdfDir)) {
-      fs.mkdirSync(pdfDir, { recursive: true });
-    }
-    const pdfPath = path.join(pdfDir, pdfFileName);
-    await this.generateReservationPdf(booking, pdfPath);
-    return pdfPath;
-  }
-
   async reject(id: string, dto: RejectBookingDto): Promise<{ message: string }> {
     const booking = await this.findOne(id);
 
@@ -297,9 +285,9 @@ Tegano Recreation Center`;
       // that's baked into that image) rather than a fixed guess, so it
       // never cuts through the logo regardless of the asset's proportions.
       const logoPath = this.getAssetPath('logo.png');
-      const logoTop = 45;
-      const logoWidth = 120;
-      let logoDisplayHeight = 90; // sane fallback if dimensions can't be read
+      const logoTop = 40;
+      const logoWidth = 115;
+      let logoDisplayHeight = 75;
       if (logoPath) {
         try {
           const logoImage = (doc as any).openImage(logoPath);
@@ -308,27 +296,27 @@ Tegano Recreation Center`;
           this.logger.warn(`Failed to read logo dimensions: ${e.message}`);
         }
       }
-      const companyBlockBottom = 95; // bottom of the 4-line company address block
-      const dividerY = Math.max(logoTop + logoDisplayHeight, companyBlockBottom) + 10;
-      const reservationDateY = dividerY + 14;
-      const toY = reservationDateY + 20;
+      const companyBlockBottom = 88;
+      const dividerY = Math.max(logoTop + logoDisplayHeight, companyBlockBottom) + 2;
+      const reservationDateY = dividerY + 12;
+      const toY = reservationDateY + 18;
 
       const drawHeader = () => {
         if (logoPath) {
           doc.image(logoPath, 50, logoTop, { width: logoWidth });
         }
 
-        doc.font('Helvetica-Bold').fontSize(10).fillColor('#0066cc')
-           .text('TEGANO INVESTMENT (PVT) LTD', 300, 50, { align: 'right', width: 240 })
-           .font('Helvetica')
-           .text('26 Princess Drive, Newlands, Harare', { align: 'right', width: 240 })
-           .text('Tel: +263 781499656 / 784700878', { align: 'right', width: 240 })
-           .text('Email: teganoinvestmentpvtltd@gmail.com', { align: 'right', width: 240 });
+        doc.font('Courier-Bold').fontSize(10.5).fillColor('#0066cc')
+           .text('TEGANO INVESTMENT (PVT) LTD', 250, 42, { align: 'right', width: 295 })
+           .font('Courier-Bold').fontSize(9)
+           .text('26 Princess Drive, Newlands, Harare', { align: 'right', width: 295 })
+           .text('Tel: +263 781499656 / 784700878', { align: 'right', width: 295 })
+           .text('Email: teganoinvestmentpvtltd@gmail.com', { align: 'right', width: 295 });
 
         // Double divider rule under the letterhead (thin top line + thick bottom line)
         doc.moveTo(50, dividerY).lineTo(50 + pageWidth, dividerY)
            .lineWidth(0.75).strokeColor('black').stroke();
-        doc.moveTo(50, dividerY + 3).lineTo(50 + pageWidth, dividerY + 3)
+        doc.moveTo(50, dividerY + 2.5).lineTo(50 + pageWidth, dividerY + 2.5)
            .lineWidth(2.5).strokeColor('black').stroke();
 
         doc.fillColor('black').fontSize(9.5);
@@ -338,18 +326,18 @@ Tegano Recreation Center`;
       drawHeader();
 
       const reservationDate = new Date().toLocaleDateString('en-GB');
-      doc.fontSize(9).text(`Reservation Date: ${reservationDate}`, 50, reservationDateY, { align: 'right', width: pageWidth });
+      doc.font('Helvetica-Bold').fontSize(9.5).text(`Reservation Date: ${reservationDate}`, 50, reservationDateY, { align: 'right', width: pageWidth });
 
-      doc.font('Helvetica-Bold').fontSize(9.5).text(`To: ${booking.schoolName}`, 50, toY, { align: 'left' });
-      doc.font('Helvetica').fontSize(9);
+      doc.font('Helvetica-Bold').fontSize(10).text(`To: ${booking.schoolName}`, 50, toY, { align: 'left' });
+      doc.font('Helvetica').fontSize(9.5);
       if (booking.poBox) doc.text(`PO Box: ${booking.poBox}`);
       doc.text(booking.districtArea);
 
-      doc.moveDown(0.6);
-      doc.font('Helvetica-Bold').fontSize(10).text('Re: Reservation Confirmation – School Trip Visit');
-      doc.font('Helvetica').fontSize(9).moveDown(0.4);
+      doc.moveDown(0.5);
+      doc.font('Helvetica-Bold').fontSize(10.5).text('Re: Reservation Confirmation – School Trip Visit');
+      doc.font('Helvetica').fontSize(9.5).moveDown(0.3);
 
-      doc.text(`Dear ${booking.contactPerson},`);
+      doc.text(`Dear ${booking.contactPerson || 'Sir/Madam'},`);
       doc.moveDown(0.4);
 
       doc.text('We are pleased to confirm the reservation for your upcoming school trip to Tegano Recreation Center. We are excited to host your students and provide a fun, engaging, and safe recreational experience.');
@@ -358,55 +346,56 @@ Tegano Recreation Center`;
       doc.text('Please find the details of your reservation below:');
       doc.moveDown(0.3);
 
-      doc.font('Helvetica-Bold').fontSize(9).list([
+      doc.font('Helvetica-Bold').fontSize(9.5).list([
         `School Name: ${booking.schoolName}`,
         `Date of Visit: ${new Date(booking.dateOfVisit).toLocaleDateString('en-GB')}`,
         `Arrival Time: ${booking.arrivalTime || '09:00 AM'} - Departure Time: ${booking.departureTime || '15:00 PM'}`,
         `Entrance fee and Meals: ${booking.entrance}`,
         `Number of Students: ${booking.studentsCount} Kids`,
         `Number of Teachers/Chaperones: ${booking.teachersCount || 'N/S'}`,
-        `Reservation Reference: TGN/${booking.id.slice(0, 5).toUpperCase()}/${new Date().getFullYear()}`,
-      ], { bulletRadius: 2, textIndent: 6, lineGap: 0 });
+        `Reservation Reference: TGN/${(booking.id || '40906').slice(0, 5).toUpperCase()}/${new Date().getFullYear()}`,
+      ], { bulletRadius: 2, textIndent: 6, lineGap: 1 });
 
       doc.moveDown(0.4);
 
-      doc.fillColor('black').font('Helvetica').fontSize(9);
+      doc.fillColor('black').font('Helvetica').fontSize(9.5);
       doc.text('Our recreation center provides a safe and exciting environment where students can enjoy a variety of recreational activities designed to encourage physical activity, teamwork, and fun learning experiences.');
       doc.moveDown(0.3);
       doc.text('A detailed list of activities available during the visit is provided in Annexure 1 attached to this letter.');
 
       doc.moveDown(0.4);
-      doc.font('Helvetica-Bold').fontSize(9).text('Important Information:');
-      doc.font('Helvetica').fontSize(8.5);
+      doc.font('Helvetica-Bold').fontSize(9.5).text('Important Information');
+      doc.font('Helvetica').fontSize(9);
       doc.list([
         'Students should wear comfortable clothing suitable for play activities.',
         'For water activities, students should bring extra clothes and towels.',
         'Teachers and supervisors are requested to accompany and monitor their groups.'
-      ], { bulletRadius: 2, textIndent: 6, lineGap: 0 });
+      ], { bulletRadius: 2, textIndent: 6, lineGap: 1 });
 
       doc.moveDown(0.4);
       doc.text('We look forward to welcoming your students for an enjoyable and memorable day at Tegano Recreation Center.');
 
       doc.moveDown(0.4);
-      doc.text('Yours sincerely,');
+      doc.font('Helvetica').fontSize(9.5).text('Yours sincerely,');
+
+      doc.moveDown(0.3);
+      doc.font('Helvetica-Bold').fontSize(10).text('Emmerson Chitawa');
 
       const signaturePath = this.getAssetPath('signature.png') || this.getAssetPath('signature.jpg');
       if (signaturePath) {
         const graphicY = doc.y + 2;
         try {
-          doc.image(signaturePath, 50, graphicY, { width: 160 });
+          doc.image(signaturePath, 50, graphicY, { width: 140 });
         } catch (e) {
           this.logger.warn(`Failed to render signature image: ${e.message}`);
         }
         doc.x = 50;
-        doc.y = graphicY + 70;
+        doc.y = graphicY + 60;
       } else {
-        doc.moveDown(0.4);
+        doc.moveDown(0.3);
       }
 
-      doc.font('Helvetica-Bold').fontSize(9).text('Emmerson Chitawa');
-      doc.moveDown(0.2);
-      doc.font('Helvetica').fontSize(8.5).text('Facility Supervisor');
+      doc.font('Helvetica').fontSize(9).text('Facility Supervisor');
 
       drawFooter();
 
@@ -532,5 +521,29 @@ Tegano Recreation Center`;
       stream.on('finish', () => resolve());
       stream.on('error', (err) => reject(err));
     });
+  }
+
+  async generateSamplePdf(outputPath?: string): Promise<string> {
+    const targetPath = outputPath || path.join(process.cwd(), 'uploads', 'sample-reservation.pdf');
+    const sampleBooking: any = {
+      id: 'sample-12345',
+      schoolName: 'St. George\'s College',
+      contactPerson: 'Mr. David Moyo',
+      districtArea: 'Harare North',
+      telephone: '+263 781 499 656',
+      dateOfVisit: new Date(),
+      arrivalTime: '08:30 AM',
+      departureTime: '03:30 PM',
+      entrance: 'Full Package (Activities & Lunch)',
+      studentsCount: 120,
+      teachersCount: '8',
+      status: BookingStatus.APPROVED,
+    };
+    const uploadsDir = path.join(process.cwd(), 'uploads');
+    if (!fs.existsSync(uploadsDir)) {
+      fs.mkdirSync(uploadsDir, { recursive: true });
+    }
+    await this.generateReservationPdf(sampleBooking as Booking, targetPath);
+    return targetPath;
   }
 }
