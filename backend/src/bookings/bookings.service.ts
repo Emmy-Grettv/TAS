@@ -285,9 +285,9 @@ Tegano Recreation Center`;
       // that's baked into that image) rather than a fixed guess, so it
       // never cuts through the logo regardless of the asset's proportions.
       const logoPath = this.getAssetPath('logo.png');
-      const logoTop = 40;
-      const logoWidth = 115;
-      let logoDisplayHeight = 75;
+      const logoTop = 38;
+      const logoWidth = 95;
+      let logoDisplayHeight = 52;
       if (logoPath) {
         try {
           const logoImage = (doc as any).openImage(logoPath);
@@ -296,8 +296,8 @@ Tegano Recreation Center`;
           this.logger.warn(`Failed to read logo dimensions: ${e.message}`);
         }
       }
-      const companyBlockBottom = 88;
-      const dividerY = Math.max(logoTop + logoDisplayHeight, companyBlockBottom) + 2;
+      // Divider line sits directly 2pt below the email text (email ends at ~91pt)
+      const dividerY = 93;
       const reservationDateY = dividerY + 12;
       const toY = reservationDateY + 18;
 
@@ -306,12 +306,12 @@ Tegano Recreation Center`;
           doc.image(logoPath, 50, logoTop, { width: logoWidth });
         }
 
-        doc.font('Courier-Bold').fontSize(10.5).fillColor('#0066cc')
-           .text('TEGANO INVESTMENT (PVT) LTD', 250, 42, { align: 'right', width: 295 })
-           .font('Courier-Bold').fontSize(9)
-           .text('26 Princess Drive, Newlands, Harare', { align: 'right', width: 295 })
-           .text('Tel: +263 781499656 / 784700878', { align: 'right', width: 295 })
-           .text('Email: teganoinvestmentpvtltd@gmail.com', { align: 'right', width: 295 });
+        doc.font('Courier-Bold').fontSize(12).fillColor('#0066cc')
+           .text('TEGANO INVESTMENT (PVT) LTD', 240, 38, { align: 'right', width: 305 })
+           .font('Courier-Bold').fontSize(9.8)
+           .text('26 Princess Drive, Newlands, Harare', { align: 'right', width: 305 })
+           .text('Tel: +263 781499656 / 784700878', { align: 'right', width: 305 })
+           .text('Email: teganoinvestmentpvtltd@gmail.com', { align: 'right', width: 305 });
 
         // Double divider rule under the letterhead (thin top line + thick bottom line)
         doc.moveTo(50, dividerY).lineTo(50 + pageWidth, dividerY)
