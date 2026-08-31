@@ -272,9 +272,9 @@ Tegano Recreation Center`;
       };
 
       const logoPath = this.getAssetPath('logo.png');
-      const logoTop = 38;
-      const logoWidth = 95;
-      let logoDisplayHeight = 52;
+      const logoTop = 25;
+      const logoWidth = 90;
+      let logoDisplayHeight = 50;
       if (logoPath) {
         try {
           const logoImage = (doc as any).openImage(logoPath);
@@ -283,9 +283,9 @@ Tegano Recreation Center`;
           this.logger.warn(`Failed to read logo dimensions: ${e.message}`);
         }
       }
-      // Divider line sits directly 2pt below the email text (email ends at ~91pt)
-      const dividerY = 93;
-      const reservationDateY = dividerY + 12;
+      // Divider line sits at y=85, safely below logo (ends at ~75) and text (ends at ~77)
+      const dividerY = 85;
+      const reservationDateY = dividerY + 11;
       const toY = reservationDateY + 18;
 
       const drawHeader = () => {
@@ -294,7 +294,7 @@ Tegano Recreation Center`;
         }
 
         doc.font('Courier-Bold').fontSize(12).fillColor('#0066cc')
-           .text('TEGANO INVESTMENT (PVT) LTD', 240, 38, { align: 'right', width: 305 })
+           .text('TEGANO INVESTMENT (PVT) LTD', 240, 25, { align: 'right', width: 305 })
            .font('Courier-Bold').fontSize(9.8)
            .text('26 Princess Drive, Newlands, Harare', { align: 'right', width: 305 })
            .text('Tel: +263 781499656 / 784700878', { align: 'right', width: 305 })
@@ -306,7 +306,7 @@ Tegano Recreation Center`;
         doc.moveTo(50, dividerY + 2.5).lineTo(50 + pageWidth, dividerY + 2.5)
            .lineWidth(2.5).strokeColor('black').stroke();
 
-        doc.fillColor('black').fontSize(9.5);
+        doc.fillColor('black').fontSize(10);
       };
 
       // --- Page 1: Quotation ---
